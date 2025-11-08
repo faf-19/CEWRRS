@@ -11,43 +11,43 @@ class HorizontalStepper extends StatelessWidget {
 
   Widget _chip({
     required String title,
+    required bool isActive,
     required bool showCheck,
     required VoidCallback onTap,
-    required double maxWidth,
+    required double chipWidth,
   }) {
     return GestureDetector(
-      
       onTap: onTap,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth, minWidth: 0),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          decoration: BoxDecoration(
-            color: Appcolors.primary,
-            borderRadius: BorderRadius.circular(22),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (showCheck) ...[
-                const Icon(Icons.check, size: 14, color: Colors.white),
-                const SizedBox(height: 12,),
-              ],
-              Flexible(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 11,
-                  ),
+      child: Container(
+        width: chipWidth, // Fixed width for perfect alignment
+        padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
+        decoration: BoxDecoration(
+          color: isActive ? Appcolors.primary : Colors.grey.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (showCheck)
+              const Padding(
+                padding: EdgeInsets.only(right: 6),
+                child: Icon(Icons.check, size: 16, color: Colors.white),
+              ),
+            Flexible(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -55,51 +55,55 @@ class HorizontalStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-        final size = MediaQuery.of(context).size;
+    // Initialize MediaQuery ONCE
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double spacing = screenWidth * 0.01; // As you requested
+    final double chipWidth = screenWidth * 0.19; // Perfect ratio
 
     return Obx(() {
       final int currentStep = controller.currentStep.value;
+      final int totalSteps = stepTitles.length;
 
-      final int total = stepTitles.length;
-      final int visibleCount = (currentStep + 1).clamp(1, total);
+      final double totalWidth =
+          (chipWidth * totalSteps) + (spacing * (totalSteps + 1));
+
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+        margin: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.05,
+          vertical: 12,
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           color: Appcolors.primary.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(30),
         ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final double chipSpacing = (constraints.maxWidth * 0.04).clamp(6.0, 10.0);
-            double tailWidth = 36; // trailing capsule target width
-            double available = constraints.maxWidth - tailWidth - chipSpacing;
-            if (available < 0) {
-              // Hide tail when space is tight
-              tailWidth = 0;
-              available = constraints.maxWidth;
-            }
-            final double maxPerChip = (available - chipSpacing * (visibleCount - 1)) / visibleCount;
-            final double chipMax = maxPerChip.isFinite
-                ? maxPerChip.clamp(56.0, 150.0)
-                : 100.0;
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.symmetric(horizontal: spacing),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(totalSteps, (i) {
+              final bool isPast = i < currentStep;
+              final bool isActive = i <= currentStep;
 
-            return Row(
-              children: [
-                for (int i = 0; i < visibleCount; i++) ...[
-                  _chip(
-                    title: stepTitles[i],
-                    showCheck: true,
-                    maxWidth: chipMax,
-                    onTap: () {
-                      if (i <= currentStep) controller.currentStep.value = i;
-                    },
-                  ),
-                  if (i < visibleCount - 1) SizedBox(width: chipSpacing),
-                ],
-                // no trailing capsule for preview step
-              ],
-            );
-          },
+              return Padding(
+                padding: EdgeInsets.only(
+                  right: i < totalSteps - 1 ? spacing : 0,
+                ),
+                child: _chip(
+                  title: stepTitles[i],
+                  isActive: isActive,
+                  showCheck: isPast,
+                  chipWidth: chipWidth,
+                  onTap: () {
+                    if (i <= currentStep) {
+                      controller.currentStep.value = i;
+                    }
+                  },
+                ),
+              );
+            }),
+          ),
         ),
       );
     });

@@ -32,10 +32,10 @@ class ClassicNavBar extends StatelessWidget {
 
   List<BottomNavigationBarItem> _navItems() => [
     _navItem(Icons.home_outlined, 'Home'),
-    _navItem(Icons.notification_important, 'Report'),
+    _navItem(Icons.report_problem_outlined, 'Report'),
     _navItem(Icons.pin_drop, 'Maps'),
-    _navItem(Icons.alarm, 'status'),
-    _navItem(Icons.phone_sharp, 'SOS'),
+    _navItem(Icons.assessment_rounded, 'status'),
+    _navItem(Icons.settings, 'Settings'),
   ];
 
   BottomNavigationBarItem _navItem(IconData icon, String label) {

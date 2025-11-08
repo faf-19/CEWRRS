@@ -1,9 +1,12 @@
 import 'package:get/get.dart';
-import '../controllers/quick_report_controller.dart';
 
-class QuickReportBinding extends Bindings {
+import '../controllers/report_controller.dart';
+
+class ReportBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => QuickReportController());
+    Get.lazyPut<ReportController>(
+      () => ReportController(),
+    );
   }
 }

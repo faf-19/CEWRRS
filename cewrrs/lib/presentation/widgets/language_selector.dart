@@ -32,9 +32,9 @@ class LanguageSelector extends StatelessWidget {
                 ),
                 const Text("Select Language", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
-                _buildTile("English", "🇬🇧"),
-                _buildTile("Amharic", "🇪🇹"),
-                _buildTile("Oromo", "🌍"),
+                _buildTile("English"),
+                _buildTile("Amharic"),
+                _buildTile("Oromo"),
                 const SizedBox(height: 12),
               ],
             ),
@@ -52,9 +52,8 @@ class LanguageSelector extends StatelessWidget {
     );
   }
 
-  Widget _buildTile(String name, String flag) {
+  Widget _buildTile(String name) {
     return ListTile(
-      leading: Text(flag, style: const TextStyle(fontSize: 20)),
       title: Text(name),
       trailing: Obx(() => Radio<String>(
         value: name,

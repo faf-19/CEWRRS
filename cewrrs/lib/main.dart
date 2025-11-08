@@ -10,6 +10,7 @@ void main() async {
   await GetStorage.init();
   Get.put(ThemeController()); // Inject controller
   Get.put(LanguageController());
+  
 
   runApp(MyApp());
 }

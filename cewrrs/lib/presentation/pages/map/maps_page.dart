@@ -35,7 +35,9 @@ class MapsPage extends StatelessWidget {
             return FlutterMap(
               options: MapOptions(
                 bounds: bounds,
-                boundsOptions: const FitBoundsOptions(padding: EdgeInsets.all(50)),
+                boundsOptions: const FitBoundsOptions(
+                  padding: EdgeInsets.all(50),
+                ),
                 interactiveFlags: InteractiveFlag.all,
               ),
               children: [
@@ -73,11 +75,17 @@ class MapsPage extends StatelessWidget {
                                 height: 40,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.red, width: 4),
+                                  border: Border.all(
+                                    color: Colors.red,
+                                    width: 4,
+                                  ),
                                 ),
                               ),
-                              const Icon(Icons.location_pin,
-                                  color: Colors.red, size: 32),
+                              const Icon(
+                                Icons.location_pin,
+                                color: Colors.red,
+                                size: 32,
+                              ),
                             ],
                           ),
                         ),
@@ -93,67 +101,66 @@ class MapsPage extends StatelessWidget {
     );
   }
 
- void _showPopup(BuildContext context, String label, String description,
-    String time, String status) {
-  showDialog(
-    context: context,
-    builder: (_) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      contentPadding: const EdgeInsets.all(20),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "📍 Incident Detail",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
+  void _showPopup(
+    BuildContext context,
+    String label,
+    String description,
+    String time,
+    String status,
+  ) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.all(20),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "📍 Incident Detail",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
 
-          _infoRow("Location", label),
-          _infoRow("Time", time),
-          _infoRow("Status", status),
+            _infoRow("Location", label),
+            _infoRow("Time", time),
+            _infoRow("Status", status),
 
-          const SizedBox(height: 12),
-          const Text(
-            "Description",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            description,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
+            const SizedBox(height: 12),
+            const Text(
+              "Description",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              description,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Close"),
           ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text("Close"),
-        ),
-      ],
-    ),
-  );
-}
+    );
+  }
 
-Widget _infoRow(String title, String value) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "$title: ",
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(color: Colors.black87),
+  Widget _infoRow(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("$title: ", style: const TextStyle(fontWeight: FontWeight.w600)),
+          Expanded(
+            child: Text(value, style: const TextStyle(color: Colors.black87)),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 }

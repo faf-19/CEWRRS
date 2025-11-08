@@ -11,11 +11,79 @@ class StepTiming extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _dropdown("Incident Type", controller.incidentTypes, controller.selectedIncidentType),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Appcolors.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Appcolors.primary.withOpacity(0.3)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.access_alarm, color: Appcolors.primary, size: 28),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Incident Timing",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Appcolors.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Please provide the exact location where the incident occurred. ",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        _dropdown(
+          "Incident Type",
+          controller.incidentTypes,
+          controller.selectedIncidentType,
+        ),
         const SizedBox(height: 16),
         _datePicker("Incident Date", controller.incidentDate),
         const SizedBox(height: 16),
         _timePicker("Incident Time", controller.incidentTime),
+        const SizedBox(height: 16),
+        _dropdown(
+          "Victim of the Incident",
+          controller.victims,
+          controller.selectedVictim,
+        ),
+        const SizedBox(height: 16),
+        _dropdown(
+          "Cause of the Incident",
+          controller.causes,
+          controller.selectedCause,
+        ),
+        const SizedBox(height: 16),
+        _dropdown(
+          "Incident Level",
+          controller.levels,
+          controller.selectedLevel,
+        ),
+        const SizedBox(height: 16),
+        _dropdown(
+          "Incident Context",
+          controller.contexts,
+          controller.selectedContext,
+        ),
       ],
     );
   }
@@ -24,13 +92,16 @@ class StepTiming extends StatelessWidget {
     return Obx(() {
       return DropdownButtonFormField<String>(
         value: selected.value,
+        //   hint: Text("select $label"),
         decoration: InputDecoration(
           labelText: label,
           filled: true,
           fillColor: Appcolors.background,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
-        items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+        items: items
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .toList(),
         onChanged: (v) => selected.value = v,
       );
     });
@@ -50,7 +121,7 @@ class StepTiming extends StatelessWidget {
         },
         child: InputDecorator(
           decoration: InputDecoration(
-            labelText: label,
+            //   labelText: label,
             filled: true,
             fillColor: Appcolors.background,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -78,7 +149,7 @@ class StepTiming extends StatelessWidget {
         },
         child: InputDecorator(
           decoration: InputDecoration(
-            labelText: label,
+            //  labelText: label,
             filled: true,
             fillColor: Appcolors.background,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

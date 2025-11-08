@@ -16,7 +16,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
       "Report",
       "Maps",
       "status",
-      "SOS",
+      "Settings",
       "OTP Verification",
     ];
 

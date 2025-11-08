@@ -11,24 +11,156 @@ class ReportController extends GetxController {
   // -------------------------------------------------------------------------
   final RxInt currentStep = 0.obs;
   final PageController pageController = PageController();
+
   bool get isLastStep => currentStep.value == 4;
   bool get isFirstStep => currentStep.value == 0;
 
+  // -------------------------------------------------------------------------
+  // 2. Edit / Expand helpers (now inside the class)
+  // -------------------------------------------------------------------------
+  final RxBool isInEditMode = false.obs;
+  final RxMap<String, bool> expandedFields = <String, bool>{}.obs;
+
+  // -------------------------------------------------------------------------
+  // 3. Attachment
+  // -------------------------------------------------------------------------
+  final Rxn<XFile> selectedFile = Rxn<XFile>();
+  final Rxn<Uint8List> selectedBytes = Rxn<Uint8List>();
+  final RxBool hasAttachment = false.obs;
+
+  // -------------------------------------------------------------------------
+  // 4. Location data
+  // -------------------------------------------------------------------------
+  final RxList<String> regions = [
+    'Addis Ababa',
+    'Dire Dawa',
+    'Afar',
+    'Amhara',
+    'Benishangul-Gumuz',
+    'Central Ethiopia',
+    'Gambela',
+    'Harari',
+    'Oromia',
+    'Sidama',
+    'Somali',
+    'South Ethiopia',
+    'Southwest Ethiopia Peoples',
+    'Tigray',
+  ].obs;
+
+  final RxList<String> kebeles = ['1', '2', '3', '4', '5'].obs;
+  final RxList<String> zones = ['Zone 1', 'Zone 2', 'Zone 3'].obs;
+  final RxList<String> woredas = [
+    'Woreda A',
+    'Woreda B',
+    'Woreda C',
+    'Woreda D',
+    'Woreda E',
+  ].obs;
+
+  final RxMap<String, List<String>> subCities = <String, List<String>>{
+    'Addis Ababa': [
+      'Addis Ketema',
+      'Akaky Kaliti',
+      'Arada',
+      'Bole',
+      'Gullele',
+      'Kirkos',
+      'Kolfe Keranio',
+      'Lideta',
+      'Nifas Silk-Lafto',
+      'Yeka',
+    ],
+    'Dire Dawa': ['Abuna', 'Adiga', 'Gende Kore'],
+  }.obs;
+
+  // -------------------------------------------------------------------------
+  // 5. Incident Details
+  // -------------------------------------------------------------------------
+  final RxList<String> incidentTypes = [
+    'Conflict',
+    'Displacement',
+    'Protest',
+    'Violence',
+    'Other',
+  ].obs;
+  final RxnString selectedIncidentType = RxnString();
+
+  final RxList<String> victims = [
+    'Individual',
+    'Group',
+    'Community',
+    'Institution',
+  ].obs;
+  final RxnString selectedVictim = RxnString();
+
+  final RxList<String> causes = [
+    'Political',
+    'Ethnic',
+    'Religious',
+    'Criminal',
+    'Unknown',
+  ].obs;
+  final RxnString selectedCause = RxnString();
+
+  final RxList<String> levels = ['Local', 'Regional', 'National'].obs;
+  final RxnString selectedLevel = RxnString();
+
+  final RxList<String> contexts = [
+    'Political',
+    'Social',
+    'Economic',
+    'Environmental',
+    'Other',
+  ].obs;
+  final RxnString selectedContext = RxnString();
+
+  // -------------------------------------------------------------------------
+  // 6. Response
+  // -------------------------------------------------------------------------
+  final RxList<String> responseTypes = [
+    'Mediation',
+    'Security Intervention',
+    'Community Dialogue',
+    'Other',
+  ].obs;
+  final RxnString selectedResponseType = RxnString();
+
+  final Rxn<DateTime> responseDate = Rxn<DateTime>();
+  final Rxn<TimeOfDay> responseTime = Rxn<TimeOfDay>();
+  final RxString responseReason = ''.obs;
+  final RxString actionTaken = ''.obs;
+
+  // -------------------------------------------------------------------------
+  // 7. Core Form Fields
+  // -------------------------------------------------------------------------
+  final RxnString selectedRegion = RxnString();
+  final RxnString selectedZone = RxnString();
+  final RxnString selectedSubCity = RxnString();
+  final RxnString selectedWoreda = RxnString();
+  final RxnString selectedKebele = RxnString();
+
+  final RxString description = ''.obs;
+  final RxString placeName = ''.obs;
+
+  final Rxn<DateTime> incidentDate = Rxn<DateTime>();
+  final Rxn<TimeOfDay> incidentTime = Rxn<TimeOfDay>();
+
+  // -------------------------------------------------------------------------
+  // 8. Navigation helpers
+  // -------------------------------------------------------------------------
   void nextStep() {
-    // 🛑 Validate current step before proceeding
     if (!validateCurrentStep()) return;
 
-    // ✅ If we are on the Review step (index 4), submit instead of advancing
+    // Submit on the Review step (index 4)
     if (currentStep.value == 4) {
-      final isValid = validateAndSubmit();
-      if (isValid) {
+      if (validateAndSubmit()) {
         showThankYouDialog();
         resetForm();
       }
       return;
     }
 
-    // ▶️ Otherwise, advance to the next step
     if (currentStep.value < 4) {
       currentStep.value++;
       if (pageController.hasClients) {
@@ -55,127 +187,7 @@ class ReportController extends GetxController {
   }
 
   // -------------------------------------------------------------------------
-  // 2. Attachment
-  // -------------------------------------------------------------------------
-  final Rxn<XFile> selectedFile = Rxn<XFile>();
-  final Rxn<Uint8List> selectedBytes = Rxn<Uint8List>();
-  final hasAttachment = false.obs;
-
-  // -------------------------------------------------------------------------
-  // 3. Location data
-  // -------------------------------------------------------------------------
-  final regions = [
-    'Addis Ababa',
-    'Dire Dawa',
-    'Afar',
-    'Amhara',
-    'Benishangul-Gumuz',
-    'Central Ethiopia',
-    'Gambela',
-    'Harari',
-    'Oromia',
-    'Sidama',
-    'Somali',
-    'South Ethiopia',
-    'Southwest Ethiopia Peoples',
-    'Tigray',
-  ].obs;
-  final Kebeles = ['1', '2', '3', '4', '5'].obs;
-
-  final zones = ['Zone 1', 'Zone 2', 'Zone 3'].obs;
-  final woredas = [
-    'Woreda A',
-    'Woreda B',
-    'Woreda C',
-    'Woreda D',
-    'Woreda E',
-  ].obs;
-
-  final subCities = <String, List<String>>{
-    'Addis Ababa': [
-      'Addis Ketema',
-      'Akaky Kaliti',
-      'Arada',
-      'Bole',
-      'Gullele',
-      'Kirkos',
-      'Kolfe Keranio',
-      'Lideta',
-      'Nifas Silk-Lafto',
-      'Yeka',
-    ],
-    'Dire Dawa': ['Abuna', 'Adiga', 'Gende Kore'],
-  }.obs;
-
-  // -------------------------------------------------------------------------
-  // 4. Incident Details
-  // -------------------------------------------------------------------------
-  final incidentTypes = [
-    'Conflict',
-    'Displacement',
-    'Protest',
-    'Violence',
-    'Other',
-  ].obs;
-  final selectedIncidentType = RxnString();
-
-  final victims = ['Individual', 'Group', 'Community', 'Institution'].obs;
-  final selectedVictim = RxnString();
-
-  final causes = [
-    'Political',
-    'Ethnic',
-    'Religious',
-    'Criminal',
-    'Unknown',
-  ].obs;
-  final selectedCause = RxnString();
-
-  final levels = ['Local', 'Regional', 'National'].obs;
-  final selectedLevel = RxnString();
-
-  final contexts = [
-    'Political',
-    'Social',
-    'Economic',
-    'Environmental',
-    'Other',
-  ].obs;
-  final selectedContext = RxnString();
-
-  // -------------------------------------------------------------------------
-  // 5. Response
-  // -------------------------------------------------------------------------
-  final responseTypes = [
-    'Mediation',
-    'Security Intervention',
-    'Community Dialogue',
-    'Other',
-  ].obs;
-  final selectedResponseType = RxnString();
-
-  final responseDate = Rxn<DateTime>();
-  final responseTime = Rxn<TimeOfDay>();
-  final responseReason = ''.obs;
-  final actionTaken = ''.obs;
-
-  // -------------------------------------------------------------------------
-  // 6. Core Form Fields
-  // -------------------------------------------------------------------------
-  final selectedRegion = RxnString();
-  final selectedZone = RxnString();
-  final selectedSubCity = RxnString();
-  final selectedWoreda = RxnString();
-  final selectedKebele = RxnString();
-
-  final description = ''.obs;
-  final placeName = ''.obs;
-
-  final incidentDate = Rxn<DateTime>();
-  final incidentTime = Rxn<TimeOfDay>();
-
-  // -------------------------------------------------------------------------
-  // 7. Media Picker (Camera/Gallery)
+  // 9. Media Picker
   // -------------------------------------------------------------------------
   Future<void> pickMedia() async {
     final picker = ImagePicker();
@@ -225,22 +237,7 @@ class ReportController extends GetxController {
         imageQuality: 85,
       );
 
-      if (file != null) {
-        selectedFile.value = file;
-        hasAttachment.value = true;
-
-        if (kIsWeb) {
-          final bytes = await file.readAsBytes();
-          selectedBytes.value = bytes;
-        }
-
-        Get.snackbar(
-          'Success',
-          'Attachment added: ${file.name}',
-          backgroundColor: Appcolors.primary,
-          colorText: Appcolors.background,
-        );
-      } else {
+      if (file == null) {
         hasAttachment.value = false;
         Get.snackbar(
           'Cancelled',
@@ -248,7 +245,23 @@ class ReportController extends GetxController {
           backgroundColor: Appcolors.accent,
           colorText: Appcolors.background,
         );
+        return;
       }
+
+      selectedFile.value = file;
+      hasAttachment.value = true;
+
+      if (kIsWeb) {
+        final bytes = await file.readAsBytes();
+        selectedBytes.value = bytes;
+      }
+
+      Get.snackbar(
+        'Success',
+        'Attachment added',
+        backgroundColor: Appcolors.primary,
+        colorText: Appcolors.background,
+      );
     } catch (e) {
       hasAttachment.value = false;
       Get.snackbar(
@@ -261,8 +274,17 @@ class ReportController extends GetxController {
   }
 
   // -------------------------------------------------------------------------
-  // 8. Validation Helpers
+  // 10. Validation helpers
   // -------------------------------------------------------------------------
+  void _showError(String message) {
+    Get.snackbar(
+      'Missing Info',
+      message,
+      backgroundColor: Appcolors.error,
+      colorText: Appcolors.background,
+      snackPosition: SnackPosition.TOP,
+    );
+  }
 
   bool _validateLocation() {
     if (selectedRegion.value == null) {
@@ -270,10 +292,10 @@ class ReportController extends GetxController {
       return false;
     }
 
-    final isSpecial =
+    final bool isSpecial =
         selectedRegion.value == "Addis Ababa" ||
         selectedRegion.value == "Dire Dawa";
-    final zoneOrSubCity = isSpecial
+    final String? zoneOrSubCity = isSpecial
         ? selectedSubCity.value
         : selectedZone.value;
 
@@ -286,12 +308,10 @@ class ReportController extends GetxController {
       _showError("Please select a Woreda");
       return false;
     }
-
     if (selectedKebele.value == null) {
-      _showError("Please enter Kebele");
+      _showError("Please select a Kebele");
       return false;
     }
-
     return true;
   }
 
@@ -308,10 +328,6 @@ class ReportController extends GetxController {
       _showError("Please select Incident Time");
       return false;
     }
-    return true;
-  }
-
-  bool _validateDetails() {
     if (selectedVictim.value == null) {
       _showError("Please select Victim");
       return false;
@@ -331,20 +347,7 @@ class ReportController extends GetxController {
     return true;
   }
 
-  bool _validateDescriptionAndAttachment() {
-    if (description.value.trim().isEmpty) {
-      _showError("Please enter a description");
-      return false;
-    }
-    if (!hasAttachment.value) {
-      _showError("Please attach a picture or video");
-      return false;
-    }
-    return true;
-  }
-
-  // NOTE: Renamed to avoid duplicate function definition.
-  bool _validateResponseStep() {
+  bool _validateDetails() {
     if (selectedResponseType.value == null) {
       _showError("Please select Response Type");
       return false;
@@ -357,6 +360,10 @@ class ReportController extends GetxController {
       _showError("Please select Response Time");
       return false;
     }
+    return true;
+  }
+
+  bool _validateResponse() {
     if (responseReason.value.trim().isEmpty) {
       _showError("Please enter Reason for Response");
       return false;
@@ -369,9 +376,8 @@ class ReportController extends GetxController {
   }
 
   // -------------------------------------------------------------------------
-  // 9. Core Step-by-Step Validation (Implemented)
+  // 11. Step-by-step validation
   // -------------------------------------------------------------------------
-
   bool validateCurrentStep() {
     switch (currentStep.value) {
       case 0:
@@ -381,61 +387,32 @@ class ReportController extends GetxController {
       case 2:
         return _validateDetails();
       case 3:
-        // Step 3 in UI is Response
-        return _validateResponseStep();
-      case 4:
-        // Step 4 is Review/Preview – no validation needed here
+        return _validateResponse();
+      case 4: // Review – always valid
         return true;
-      case 5:
-        // NEW: Preview page. No specific validation needed, just allow next (submit)
-        return true; // Step 4 leads to final submission
       default:
         return true;
     }
   }
 
   // -------------------------------------------------------------------------
-  // 10. Final Submission Validation
+  // 12. Final submission validation
   // -------------------------------------------------------------------------
   bool validateAndSubmit() {
-    // 💡 For a final submit, you should check ALL previous steps' validation,
-    // in case the user jumped or logic was bypassed.
-
-    // Step 0: Location
-    if (!_validateLocation()) return false;
-
-    // Step 1: Timing
-    if (!_validateTiming()) return false;
-
-    // Step 2: Details
-    if (!_validateDetails()) return false;
-
-    // Step 3: Description & Attachment
-    if (!_validateDescriptionAndAttachment()) return false;
-
-    // Step 4: Response
-    if (!_validateResponseStep()) return false;
-
-    // Everything is valid, log the report and submit
-    _logReport();
-    return true;
+    return _validateLocation() &&
+        _validateTiming() &&
+        _validateDetails() &&
+        _validateResponse();
   }
 
-  void _showError(String message) {
-    Get.snackbar(
-      'Missing Info',
-      message,
-      backgroundColor: Appcolors.error,
-      colorText: Appcolors.background,
-      snackPosition: SnackPosition.TOP,
-    );
-  }
-
+  // -------------------------------------------------------------------------
+  // 13. Logging & UI helpers
+  // -------------------------------------------------------------------------
   void _logReport() {
-    final isSpecial =
+    final bool isSpecial =
         selectedRegion.value == "Addis Ababa" ||
         selectedRegion.value == "Dire Dawa";
-    final zoneOrSubCity = isSpecial
+    final String? zoneOrSubCity = isSpecial
         ? selectedSubCity.value
         : selectedZone.value;
 
@@ -461,13 +438,10 @@ class ReportController extends GetxController {
     debugPrint("===============================");
   }
 
-  // -------------------------------------------------------------------------
-  // 11. Show Thank You Dialog (similar to quick_report_page)
-  // -------------------------------------------------------------------------
   void showThankYouDialog({BuildContext? context}) {
-    final dialogContext = context ?? Get.context!;
+    final BuildContext ctx = context ?? Get.context!;
     showDialog(
-      context: dialogContext,
+      context: ctx,
       barrierDismissible: false,
       builder: (_) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -521,24 +495,30 @@ class ReportController extends GetxController {
       ),
     );
 
-    Future.delayed(const Duration(milliseconds: 2000), () {
-      if (Get.isDialogOpen == true) {
-        Get.back(); // Close dialog
-      }
-      // Optionally navigate to home or another page
-      // Get.offAllNamed('/home');
+    // Auto-close after a short delay and go back to home
+    Future.delayed(const Duration(seconds: 2), () {
+      if (Navigator.canPop(ctx)) Navigator.of(ctx).pop();
+      Get.offAllNamed('/home');
     });
   }
 
   // -------------------------------------------------------------------------
-  // 12. Reset Form
+  // 14. Reset & Edit helpers
   // -------------------------------------------------------------------------
+  void returnToReview() {
+    isInEditMode.value = false;
+    currentStep.value = 4; // Review step
+    if (pageController.hasClients) pageController.jumpToPage(4);
+  }
+
   void resetForm() {
+    // Core fields
     selectedRegion.value = null;
     selectedZone.value = null;
     selectedSubCity.value = null;
     selectedWoreda.value = null;
     selectedKebele.value = null;
+
     selectedIncidentType.value = null;
     incidentDate.value = null;
     incidentTime.value = null;
@@ -546,17 +526,25 @@ class ReportController extends GetxController {
     selectedCause.value = null;
     selectedLevel.value = null;
     selectedContext.value = null;
+
     description.value = '';
+    placeName.value = '';
+
     selectedFile.value = null;
     selectedBytes.value = null;
     hasAttachment.value = false;
+
     selectedResponseType.value = null;
     responseDate.value = null;
     responseTime.value = null;
     responseReason.value = '';
     actionTaken.value = '';
+
+    // UI state
     currentStep.value = 0;
     pageController.jumpToPage(0);
+    expandedFields.clear();
+    isInEditMode.value = false;
   }
 
   @override

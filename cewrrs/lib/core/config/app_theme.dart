@@ -4,7 +4,12 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static final ThemeData light = ThemeData(
     scaffoldBackgroundColor: Appcolors.border,
-    primaryColor: Appcolors.primary,
+
+    useMaterial3: true,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: const Color.fromARGB(255, 6, 176, 255),
+      brightness: Brightness.light,
+    ),
     textTheme: const TextTheme(
       bodyMedium: TextStyle(color: Appcolors.textDark),
     ),

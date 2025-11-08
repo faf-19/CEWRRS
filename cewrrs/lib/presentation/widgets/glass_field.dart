@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../themes/colors.dart';
 
 class GlassField extends StatelessWidget {
   final TextEditingController controller;
@@ -9,6 +10,7 @@ class GlassField extends StatelessWidget {
   final VoidCallback? onTap;
   final String? hint;
   final Widget? suffixIcon;
+  final Widget? prefixIcon;
   final int? maxLength;
 
   const GlassField({
@@ -22,6 +24,7 @@ class GlassField extends StatelessWidget {
     this.hint,
     this.suffixIcon,
     this.maxLength,
+    this.prefixIcon,
   });
 
   @override
@@ -40,17 +43,20 @@ class GlassField extends StatelessWidget {
           labelText: label,
           hintText: hint,
           suffixIcon: suffixIcon,
-          counterText: maxLength != null ? '' : null, // Hide character counter if maxLength is set
+          prefix: prefixIcon,
+          counterText: maxLength != null
+              ? ''
+              : null, // Hide character counter if maxLength is set
 
           filled: true,
-          fillColor: Colors.white.withOpacity(0.7),
+          fillColor: const Color.fromARGB(255, 241, 240, 240).withOpacity(0.7),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
+            borderSide: const BorderSide(color: Appcolors.primary, width: 2),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+            borderSide: BorderSide(color: Colors.blue.withOpacity(0.3)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),

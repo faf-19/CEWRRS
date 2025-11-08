@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cewrrs/presentation/themes/colors.dart';
 import 'package:cewrrs/presentation/themes/text_style.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/auth_controller.dart';
@@ -17,15 +18,23 @@ class OtpVerificationPage extends StatefulWidget {
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
   final controller = Get.find<AuthController>();
-  int countdown = 30; // Start at 30 seconds
+  int countdown = 30;
   late Timer timer;
+
+  // NEW: Clean +251 format (removes leading 0)
+  String get _prettyPhone {
+    final digits = controller.phone.text.replaceAll(RegExp(r'\D'), '');
+    if (digits.startsWith('0') && digits.length == 10) {
+      final clean = '251${digits.substring(1)}';
+      return '+251 ${clean.substring(3, 6)} ${clean.substring(6, 9)} ${clean.substring(9)}';
+    }
+    return controller.phone.text; // fallback
+  }
 
   @override
   void initState() {
     super.initState();
     startCountdown();
-
-    // Auto-focus first OTP box after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNodes[0].requestFocus();
     });
@@ -33,24 +42,19 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
   void updateOtp(int index, String value) {
     final currentOtp = controller.otp.text.padRight(4, ' ');
-    String newOtp;
-
-    if (value.isEmpty) {
-      newOtp = currentOtp.replaceRange(index, index + 1, ' ');
-    } else {
-      newOtp = currentOtp.replaceRange(index, index + 1, value);
-    }
+    final newOtp = value.isEmpty
+        ? currentOtp.replaceRange(index, index + 1, ' ')
+        : currentOtp.replaceRange(index, index + 1, value);
 
     controller.otp.text = newOtp.trim();
 
-    // Auto-submit when 4 digits are entered
     if (controller.otp.text.length == 4) {
       _verifyAndProceed();
     }
   }
 
   void _verifyAndProceed() async {
-     controller.verifyOtp();
+    controller.verifyOtp();
     if (controller.isOtpVerified) {
       showThankYouAndRedirect();
     }
@@ -70,9 +74,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   @override
   void dispose() {
     timer.cancel();
-    for (var node in _focusNodes) {
-      node.dispose();
-    }
+    for (var node in _focusNodes) node.dispose();
     super.dispose();
   }
 
@@ -126,7 +128,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Get.back(); // Close dialog
+        Get.back();
         Get.offAllNamed('/quick-report');
       }
     });
@@ -142,12 +144,18 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_sharp, color: Appcolors.textDark),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_sharp,
+            color: Appcolors.textDark,
+          ),
           onPressed: () => Get.offAllNamed('/intro'),
         ),
         title: Text(
           "Quick Report",
-          style: AppTextStyles.heading.copyWith(color: Appcolors.textDark, fontSize: 16),
+          style: AppTextStyles.heading.copyWith(
+            color: Appcolors.textDark,
+            fontSize: 16,
+          ),
         ),
         actions: [
           Padding(
@@ -160,12 +168,11 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         padding: EdgeInsets.only(
           left: 24,
           right: 24,
-          top: 24,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 24, // Push above keyboard
+          top: 76,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
         ),
         child: Column(
           children: [
-            // Main Card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
@@ -188,14 +195,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
+
+                  // FIXED: Now uses _prettyPhone → no more "0"!
                   Text(
-                    "We texted you a code to verify your phone number\n(+251) ${controller.phone.text}",
+                    "We have sent a secure verification code to your phone number.\n"
+                    "Please enter it below to continue.\n $_prettyPhone",
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 24),
 
-                  // OTP Input Boxes
+                  // OTP Boxes (unchanged)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List.generate(4, (index) {
@@ -206,18 +216,28 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
                           maxLength: 1,
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                           decoration: InputDecoration(
                             counterText: "",
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Appcolors.primary, width: 2),
+                              borderSide: const BorderSide(
+                                color: Appcolors.primary,
+                                width: 2,
+                              ),
                             ),
                           ),
                           onChanged: (value) {
                             updateOtp(index, value);
-
                             if (value.isNotEmpty && index < 3) {
                               _focusNodes[index + 1].requestFocus();
                             } else if (value.isEmpty && index > 0) {
@@ -230,8 +250,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   ),
 
                   const SizedBox(height: 16),
-
-                  // Resend / Countdown
                   Align(
                     alignment: Alignment.centerRight,
                     child: countdown == 0
@@ -245,12 +263,15 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                             },
                             child: const Text(
                               "Resend",
-                              style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: Appcolors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           )
                         : Text(
                             "Resend in $countdown sec",
-                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                   ),
 
@@ -262,8 +283,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   ),
 
                   const SizedBox(height: 24),
-
-                  // Verify Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -271,7 +290,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Appcolors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: const Text(
                         "Verify",

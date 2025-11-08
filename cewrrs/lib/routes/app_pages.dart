@@ -2,19 +2,22 @@ import 'package:cewrrs/presentation/bindings/home_binding.dart';
 import 'package:cewrrs/presentation/bindings/login_binding.dart';
 import 'package:cewrrs/presentation/bindings/maps_binding.dart';
 import 'package:cewrrs/presentation/bindings/quick_report_binding.dart';
+import 'package:cewrrs/presentation/bindings/register_binding.dart';
 import 'package:cewrrs/presentation/bindings/report_binding.dart';
-import 'package:cewrrs/presentation/bindings/sos_binding.dart';
+import 'package:cewrrs/presentation/bindings/settings_binding.dart';
 import 'package:cewrrs/presentation/bindings/status_binding.dart';
 import 'package:cewrrs/presentation/pages/IntroPage.dart';
-import 'package:cewrrs/presentation/pages/SOS_page.dart';
+import 'package:cewrrs/presentation/pages/Settings_page.dart';
 import 'package:cewrrs/presentation/pages/auth/login_page.dart';
 import 'package:cewrrs/presentation/pages/auth/otp_verification_page.dart';
 import 'package:cewrrs/presentation/pages/auth/phone_input_page.dart';
+import 'package:cewrrs/presentation/pages/auth/registration_page.dart';
 import 'package:cewrrs/presentation/pages/home_page.dart';
 import 'package:cewrrs/presentation/pages/map/maps_page.dart';
 import 'package:cewrrs/presentation/pages/report/quick_report_page.dart';
 import 'package:cewrrs/presentation/pages/report/report_page.dart';
 import 'package:cewrrs/presentation/pages/status_page.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../presentation/bindings/auth_binding.dart';
 
@@ -23,13 +26,14 @@ abstract class Routes {
   static const INTRO = '/intro';
   static const LOGIN = '/login';
   static const HOME = '/home';
+  static const REGISTER = '/register';
   static const PHONE = '/phone';
   static const VERIFY = '/verify';
   static const QUICK_REPORT = '/quick-report';
   static const REPORT = '/report';
   static const MAPS = '/maps';
   static const STATUS = '/status';
-  static const SOS = '/sos';
+  static const SETTINGS = '/settings';
 }
 
 class AppPages {
@@ -47,6 +51,11 @@ class AppPages {
       name: Routes.LOGIN,
       page: () => LoginPage(),
       binding: LoginBinding(),
+    ),
+    GetPage(
+      name: Routes.REGISTER,
+      page: () => RegisterPage(),
+      binding: RegisterBinding(),
     ),
     GetPage(name: Routes.HOME, page: () => HomePage(), binding: HomeBinding()),
     GetPage(
@@ -75,6 +84,10 @@ class AppPages {
       page: () => StatusPage(),
       binding: StatusBinding(),
     ),
-    GetPage(name: '/sos', page: () => SosPage(), binding: SosBinding()),
+    GetPage(
+      name: Routes.SETTINGS,
+      page: () => const SettingsView(),
+      binding: SettingsBinding(), // <-- use the binding you already defined
+    ),
   ];
 }

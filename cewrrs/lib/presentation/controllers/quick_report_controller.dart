@@ -1,244 +1,260 @@
+import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:flutter/foundation.dart'; // for kIsWeb
+import 'package:cewrrs/presentation/controllers/home_controller.dart';
 import 'package:cewrrs/presentation/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mime/mime.dart';
 
-class QuickReportController extends GetxController {
-  // ──────────────────────────────────────────────────────────────
-  // Attachment
-  // ──────────────────────────────────────────────────────────────
-  final Rxn<XFile> selectedFile = Rxn<XFile>();
-  final hasAttachment = false.obs;
-  final selectedBytes = Rxn<Uint8List>();
+class ReportController extends GetxController {
+  final ReportService reportService = Get.put(ReportService());
+  final HomeController homeController = Get.put(HomeController());
 
-  // ──────────────────────────────────────────────────────────────
-  // Location data
-  // ──────────────────────────────────────────────────────────────
-  final regions = [
-    'Addis Ababa',
-    'Dire Dawa',
-    'Afar',
-    'Amhara',
-    'Benishangul-Gumuz',
-    'Central Ethiopia',
-    'Gambela',
-    'Harari',
-    'Oromia',
-    'Sidama',
-    'Somali',
-    'South Ethiopia',
-    'Southwest Ethiopia Peoples',
-    'Tigray',
-  ].obs;
+  final GlobalKey<FormState> descriptionformKey = GlobalKey<FormState>();
 
-  final zones = <String>[
-    'zone 1'
-    'zone 2'
-  ].obs; // Fill dynamically if needed
+  var tabIndex = 0.obs;
+  var showAll = true.obs;
+  var selectedDay = 1.obs;
+  var selectedMonth = 1.obs;
+  var selectedYear = DateTime.now().year.obs;
+  var selectedTime = TimeOfDay.now().obs;
+  var contactInfo = ''.obs;
 
-  final woredas = <String>[
-    'Woreda A',
-    'Woreda B',
-    'Woreda C',
-    'Woreda D',
-    'Woreda E',
-  ].obs;
+  List<String> ethiopianMonths = [
+    'መስከረም',
+    'ጥቅምት',
+    'ሕዳር',
+    'ታኅሣሥ',
+    'ጥር',
+    'የካቲት',
+    'መጋቢት',
+    'ሚያዝያ',
+    'ግንቦት',
+    'ሰኔ',
+    'ሐምሌ',
+    'ነሐሴ',
+    'ጳጉሜ',
+  ];
 
-  final subCities = <String, List<String>>{
-    'Addis Ababa': [
-      'Addis Ketema',
-      'Akaky Kaliti',
-      'Arada',
-      'Bole',
-      'Gullele',
-      'Kirkos',
-      'Kolfe Keranio',
-      'Lideta',
-      'Nifas Silk-Lafto',
-      'Yeka',
-    ],
-    'Dire Dawa': [
-      'Abuna',
-      'Adiga',
-      'Gende Kore',
-    ],
-  }.obs;
+  Rx<DateTime> selectedDateTime = Rx<DateTime>(DateTime.now());
+  RxBool isDateSelelcted = RxBool(false);
 
-  // ──────────────────────────────────────────────────────────────
-  // Form fields
-  // ──────────────────────────────────────────────────────────────
-  final selectedRegion = RxnString();
-  final selectedZone = RxnString();
-  final selectedSubCity = RxnString();
-  final selectedWoreda = RxnString();
+  late TextEditingController description;
+  RxBool isToggled = false.obs;
+  var isSendreport = false.obs;
+  var isLoading = false.obs;
+  bool isDraft = false;
+  late String phonenumberCr = "";
 
-  final kebele = ''.obs;
-  final description = ''.obs;
+  // Reports list
+  var reports = <Report>[].obs;
 
-  // ──────────────────────────────────────────────────────────────
-  // Pick Media (Gallery or Camera)
-  // ──────────────────────────────────────────────────────────────
-Future<void> pickMedia() async {
-  final picker = ImagePicker();
+  //send image
+  RxList<File> selectedImages = <File>[].obs;
 
-  await showModalBottomSheet(
-    context: Get.context!,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (_) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.photo_library, color: Colors.blue),
-            title: const Text("Choose from Gallery"),
-            onTap: () async {
-              Navigator.pop(Get.context!);
-              await _pickFromSource(picker, ImageSource.gallery);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.camera_alt, color: Colors.green),
-            title: const Text("Take a Photo"),
-            onTap: () async {
-              Navigator.pop(Get.context!);
-              await _pickFromSource(picker, ImageSource.camera);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.close, color: Colors.red),
-            title: const Text("Cancel"),
-            onTap: () => Navigator.pop(Get.context!),
-          ),
-        ],
-      ),
-    ),
-  );
-}
+  //Send video
+  RxList<File> selectedVideos = <File>[].obs;
 
+  RxList<File> selectedSignVideos = <File>[].obs;
+  RxList<VideoPlayerController> videoControllers =
+      <VideoPlayerController>[].obs;
 
-  Future<void> _pickFromSource(ImagePicker picker, ImageSource source) async {
+  //send audio
+  RxList<String> audioPaths = <String>[].obs;
+
+  //Send link
+  RxList<String> selectedLinks = <String>[].obs;
+
+  //send file
+  RxList<PlatformFile> selectedFile = <PlatformFile>[].obs;
+
+  //locations
+  double? latitude;
+  double? longitude;
+  bool isGettingLocation = false;
+  double? targetLatitude = 8.9889820;
+  double? targetlongitude = 38.7703300;
+  Rx<LatLng> selectedLocation = LatLng(8.9889820, 38.7703300).obs;
+  RxBool isLocationSelelcted = RxBool(false);
+
+  late TabController tabController;
+
+  final count = 0.obs;
+  var selectedFilter = "All".obs;
+  var filteredReports = <Report>[].obs;
+  List<String> get filters => ["All", "PENDING", "ACCEPTED"];
+
+  @override
+  void onInit() {
+    description = TextEditingController();
+    ever(reports, (_) => applyFilter(selectedFilter.value));
+    super.onInit();
+  }
+
+  void applyFilter(String filter) {
+    selectedFilter.value = filter;
+
+    if (filter == "All") {
+      filteredReports.assignAll(reports);
+    } else {
+      filteredReports.assignAll(
+        reports
+            .where(
+              (report) => report.status.toUpperCase() == filter.toUpperCase(),
+            )
+            .toList(),
+      );
+    }
+  }
+
+  void updateMarker(LatLng position) {
+    if (position != null) {
+      isLocationSelelcted(true);
+      selectedLocation.value = position;
+      //for the backend
+      latitude = position.latitude;
+      longitude = position.longitude;
+      //save the lataes position
+      targetLatitude = position.latitude;
+      targetlongitude = position.longitude;
+    } else {
+      isLocationSelelcted(false);
+    }
+  }
+
+  void changeTabIndex(int index) {
+    tabIndex.value = index;
+  }
+
+  // Submit report method
+  // Update the submitReport method in your ReportController
+  Future<void> submitReport() async {
+    if (!descriptionformKey.currentState!.validate()) {
+      Get.snackbar('Error', 'Please fill all required fields');
+      return;
+    }
+
+    if (!isLocationSelelcted.value) {
+      Get.snackbar('Error', 'Please select a location');
+      return;
+    }
+
+    if (!isDateSelelcted.value) {
+      Get.snackbar('Error', 'Please select incident time');
+      return;
+    }
+
+    // Validate that we have latitude and longitude
+    if (latitude == null || longitude == null) {
+      Get.snackbar('Error', 'Location data is missing');
+      return;
+    }
+
     try {
-      final XFile? file = await picker.pickImage(
-        source: source,
-        maxWidth: 1800,
-        maxHeight: 1800,
-        imageQuality: 85,
+      isSendreport(true);
+      isLoading(true);
+
+      // Create report request WITHOUT attachments
+      final reportRequest = CreateReportRequest(
+        latitude: latitude!,
+        longitude: longitude!,
+        // phoneNumber: homeController.userPhoneNo.value,
+        phoneNumber: '0910111213',
+        description: description.text.isNotEmpty ? description.text : null,
+        incidentTime: selectedDateTime.value,
       );
 
-      if (file != null) {
-        selectedFile.value = file;
-        hasAttachment.value = true;
-        Get.snackbar(
-          'Success',
-          'Attachment added: ${file.name}',
-          backgroundColor: Appcolors.primary,
-          colorText: Appcolors.background,
-        );
-      } else {
-        hasAttachment.value = false;
-        Get.snackbar(
-          'Cancelled',
-          'No file selected.',
-          backgroundColor: Appcolors.accent,
-          colorText: Appcolors.background,
-        );
-      }
+      print('Submitting report: ${reportRequest.toJson()}'); // Debug log
+
+      // Send to API
+      final newReport = await reportService.createReport(reportRequest);
+
+      Get.snackbar(
+        'Success',
+        'Report submitted successfully',
+        backgroundColor: Appcolors.success,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Clear form
+      clearForm();
+      await getReports();
+      // Optionally navigate to reports list
+      Get.to(() => ReportsListView());
     } catch (e) {
-      hasAttachment.value = false;
+      print('Error submitting report: $e'); // Debug log
+      Get.snackbar('Error', 'Failed to submit report: $e');
+    } finally {
+      isSendreport(false);
+      isLoading(false);
+    }
+  }
+
+  // Get all reports
+  // Update the getReports method in your ReportController
+  Future<void> getReports() async {
+    try {
+      isLoading(true);
+      print('Fetching reports...'); // Debug log
+      final reportsList = await reportService.getReports();
+      reports.assignAll(reportsList);
+      applyFilter(selectedFilter.value);
+      print('Fetched ${reportsList.length} reports'); // Debug log
+    } catch (e) {
+      print('Error fetching reports: $e'); // Debug log
       Get.snackbar(
         'Error',
-        'Failed to pick image: $e',
-        backgroundColor: Appcolors.error,
-        colorText: Appcolors.background,
+        'Failed to load reports: $e',
+        snackPosition: SnackPosition.BOTTOM,
       );
+    } finally {
+      isLoading(false);
     }
   }
 
-  // ──────────────────────────────────────────────────────────────
-  // Submit Report – returns true if valid
-  // ──────────────────────────────────────────────────────────────
-  bool validateAndSubmit() {
-    if (selectedRegion.value == null) {
-      _showError("Please select a Region/City");
-      return false;
-    }
-
-    final isSpecial = selectedRegion.value == "Addis Ababa" ||
-        selectedRegion.value == "Dire Dawa";
-    final zoneOrSubCity = isSpecial ? selectedSubCity.value : selectedZone.value;
-
-    if (zoneOrSubCity == null) {
-      _showError(
-          "Please select ${isSpecial ? 'a Sub-City' : 'a Zone'}");
-      return false;
-    }
-
-    if (selectedWoreda.value == null) {
-      _showError("Please select a Woreda");
-      return false;
-    }
-
-    if (kebele.value.trim().isEmpty) {
-      _showError("Please enter Kebele");
-      return false;
-    }
-
-    if (description.value.trim().isEmpty) {
-      _showError("Please enter a description");
-      return false;
-    }
-
-    if (!hasAttachment.value) {
-      _showError("Please attach a picture or video");
-      return false;
-    }
-
-    // ─── SUCCESS: All required fields filled ───
-    _logReport();
-    return true;
+  // Clear form method
+  void clearForm() {
+    description.clear();
+    selectedImages.clear();
+    selectedVideos.clear();
+    selectedSignVideos.clear();
+    selectedLinks.clear();
+    selectedFile.clear();
+    isLocationSelelcted(false);
+    isDateSelelcted(false);
+    selectedDateTime.value = DateTime.now();
   }
 
-  void _showError(String message) {
-    Get.snackbar(
-      'Missing Info',
-      message,
-      backgroundColor: Appcolors.error,
-      colorText: Appcolors.background,
-      snackPosition: SnackPosition.TOP,
-    );
+  Future<ImageType> getImageType(File file) async {
+    final String? mimeType = lookupMimeType(file.path);
+
+    if (mimeType != null && mimeType.startsWith('image/')) {
+      return ImageType.image;
+    }
+
+    if (mimeType != null && mimeType.startsWith('video/')) {
+      return ImageType.video;
+    }
+
+    return ImageType.video;
   }
 
-  void _logReport() {
-    final isSpecial = selectedRegion.value == "Addis Ababa" ||
-        selectedRegion.value == "Dire Dawa";
-    final zoneOrSubCity = isSpecial ? selectedSubCity.value : selectedZone.value;
+  Future<VideoType> getVideoType(File file) async {
+    final String? mimeType = lookupMimeType(file.path);
 
-    print("=== QUICK REPORT SUBMITTED ===");
-    print("Region: ${selectedRegion.value}");
-    print("Zone/Sub-City: $zoneOrSubCity");
-    print("Woreda: ${selectedWoreda.value}");
-    print("Kebele: ${kebele.value}");
-    print("Description: ${description.value}");
-    print("Attachment: ${selectedFile.value?.path}");
-    print("===============================");
-  }
+    if (mimeType != null && mimeType.startsWith('video/')) {
+      return VideoType.video;
+    }
 
-  // ──────────────────────────────────────────────────────────────
-  // Reset form after successful submission
-  // ──────────────────────────────────────────────────────────────
-  void resetForm() {
-    selectedRegion.value = null;
-    selectedZone.value = null;
-    selectedSubCity.value = null;
-    selectedWoreda.value = null;
-    kebele.value = '';
-    description.value = '';
-    selectedFile.value = null;
-    hasAttachment.value = false;
+    if (mimeType != null && mimeType.startsWith('audio/')) {
+      return VideoType.audio;
+    }
+
+    return VideoType.unknown;
   }
 }
+
+enum ImageType { image, video }
+
+enum VideoType { video, image, audio, unknown }

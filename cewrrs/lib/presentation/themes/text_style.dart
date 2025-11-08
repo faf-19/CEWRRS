@@ -1,3 +1,4 @@
+import 'package:cewrrs/presentation/themes/colors.dart';
 import 'package:flutter/material.dart';
 
 class AppTextStyles {
@@ -17,6 +18,11 @@ class AppTextStyles {
   fontSize: 16,
   fontWeight: FontWeight.w500,
   color: Colors.white70,
+);
+ static const TextStyle button = TextStyle(
+  fontSize: 16,
+  fontWeight: FontWeight.w500,
+  color: Appcolors.primary,
 );
 
 

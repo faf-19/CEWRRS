@@ -8,6 +8,5 @@ class Appcolors {
   static const Color textLight = Color(0xFF777777);
   static const Color fieldFill = Color(0xFFF5F5F5);
   static const Color border = Color(0xFFE0E0E0);
-    static const Color error = Color.fromARGB(255, 255, 0, 0);
-
+  static const Color error = Color.fromARGB(255, 255, 0, 0);
 }

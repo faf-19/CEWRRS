@@ -9,21 +9,21 @@ import 'package:cewrrs/presentation/widgets/language_selector.dart';
 
 class IntroPage extends StatelessWidget {
   IntroPage({super.key});
-  
+
   final langController = Get.find<LanguageController>();
-  
+
   // NOTE: Screen dimensions MUST be defined inside the build method.
   // The incorrect lines have been removed from here.
 
   @override
   Widget build(BuildContext context) {
     // ✅ FIX: Define screen dimensions here where 'context' is available
- final size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
     // final screenWidth = size.width;
     final screenHeight = size.height; // <-- This is your variable
     // Calculate a responsive height (e.g., 5% of the screen height)
     // Adjust the multiplier (0.05) to fine-tune the spacing.
-    final responsiveSpacing = screenHeight * 0.05; 
+    final responsiveSpacing = screenHeight * 0.05;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -52,19 +52,19 @@ class IntroPage extends StatelessWidget {
                 children: [
                   // Logo (Top Left)
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.center,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 15),
+                      padding: EdgeInsets.only(top: screenHeight * 0.2),
                       child: Image.asset(
                         'assets/images/logo.png',
-                        width: 48,
-                        height: 48,
+                        width: 170,
+                        height: 170,
                       ),
                     ),
                   ),
 
                   // **MODIFICATION START: Use responsive spacing**
-                  SizedBox(height: responsiveSpacing),
+                  SizedBox(height: screenHeight * 0.05),
                   // **MODIFICATION END**
 
                   // Centered Content
@@ -74,13 +74,10 @@ class IntroPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                           SizedBox(height: screenHeight * 0.25), // Keep this if you want some padding before the title text too
-                          Text(
-                            "A WELL-TIMED WARNING\nCAN PREVENT A\nDECADES-LONG CRISIS!",
-                            style: AppTextStyles.heading,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: AppConstants.sectionSpacing),
+                          SizedBox(
+                            height: screenHeight * 0.05,
+                          ), // Keep this if you want some padding before the title text too
+
                           Text(
                             "Conflict Early Warning System",
                             style: AppTextStyles.subheading,

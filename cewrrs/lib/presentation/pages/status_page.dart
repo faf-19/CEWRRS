@@ -3,7 +3,6 @@ import 'package:cewrrs/presentation/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
 class StatusPage extends GetView<StatusController> {
   // Helper function to get color based on status (similar to MapsPage logic)
   Color _getStatusColor(String status) {
@@ -35,10 +34,7 @@ class StatusPage extends GetView<StatusController> {
           Container(
             width: 6,
             height: 6,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 6),
           Text(
@@ -97,14 +93,16 @@ class StatusPage extends GetView<StatusController> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Obx(() => Text(
-                          '${controller.reports.length} Active Reports',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.w500,
+                        Obx(
+                          () => Text(
+                            '${controller.reports.length} Active Reports',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        )),
+                        ),
                       ],
                     ),
                   ),
@@ -115,7 +113,10 @@ class StatusPage extends GetView<StatusController> {
             // Enhanced Data Table
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 8.0,
+                ),
                 child: Card(
                   elevation: 0,
                   color: Colors.white,
@@ -140,11 +141,16 @@ class StatusPage extends GetView<StatusController> {
                           headingRowColor: MaterialStateProperty.resolveWith(
                             (states) => Colors.grey.shade50,
                           ),
+                          columnSpacing: 2,
                           columns: [
                             DataColumn(
                               label: Row(
                                 children: [
-                                  Icon(Icons.tag, size: 16, color: Colors.grey.shade700),
+                                  Icon(
+                                    Icons.tag,
+                                    size: 16,
+                                    color: Colors.grey.shade700,
+                                  ),
                                   const SizedBox(width: 6),
                                   Text(
                                     'ID',
@@ -161,7 +167,11 @@ class StatusPage extends GetView<StatusController> {
                             DataColumn(
                               label: Row(
                                 children: [
-                                  Icon(Icons.title, size: 16, color: Colors.grey.shade700),
+                                  Icon(
+                                    Icons.title,
+                                    size: 16,
+                                    color: Colors.grey.shade700,
+                                  ),
                                   const SizedBox(width: 6),
                                   Text(
                                     'Title',
@@ -178,44 +188,19 @@ class StatusPage extends GetView<StatusController> {
                             DataColumn(
                               label: Row(
                                 children: [
-                                  Icon(Icons.info_outline, size: 16, color: Colors.grey.shade700),
-                                  const SizedBox(width: 6),
+                                  Icon(
+                                    Icons.info_outline,
+                                    size: 16,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      47,
+                                      47,
+                                      47,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
                                   Text(
                                     'Status',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                      color: Colors.grey.shade800,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            DataColumn(
-                              label: Row(
-                                children: [
-                                  Icon(Icons.person_outline, size: 16, color: Colors.grey.shade700),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Assigned To',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                      color: Colors.grey.shade800,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            DataColumn(
-                              label: Row(
-                                children: [
-                                  Icon(Icons.calendar_today_outlined, size: 16, color: Colors.grey.shade700),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Date',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
@@ -242,15 +227,22 @@ class StatusPage extends GetView<StatusController> {
                             final index = entry.key;
                             final report = entry.value;
                             final isEven = index % 2 == 0;
-                            
+
                             return DataRow(
-                              color: MaterialStateProperty.resolveWith((states) {
-                                return isEven ? Colors.grey.shade50.withOpacity(0.3) : Colors.white;
+                              color: MaterialStateProperty.resolveWith((
+                                states,
+                              ) {
+                                return isEven
+                                    ? Colors.grey.shade50.withOpacity(0.3)
+                                    : Colors.white;
                               }),
                               cells: [
                                 DataCell(
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 2,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.blue.shade50,
                                       borderRadius: BorderRadius.circular(6),
@@ -268,11 +260,13 @@ class StatusPage extends GetView<StatusController> {
                                 ),
                                 DataCell(
                                   SizedBox(
-                                    width: 180,
+                                    width: 150,
                                     child: Text(
-                                      report.title,
+                                      report.title.length > 20
+                                          ? '${report.title.substring(0, 20)}…'
+                                          : report.title,
                                       overflow: TextOverflow.ellipsis,
-                                      maxLines: 2,
+                                      maxLines: 1,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 14,
@@ -282,40 +276,6 @@ class StatusPage extends GetView<StatusController> {
                                   ),
                                 ),
                                 DataCell(_buildStatusChip(report.status)),
-                                DataCell(
-                                  Row(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 12,
-                                        backgroundColor: Colors.grey.shade200,
-                                        child: Icon(
-                                          Icons.person,
-                                          size: 14,
-                                          color: Colors.grey.shade700,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        report.assignedTo,
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey.shade700,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    report.date,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.grey.shade600,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
                                 DataCell(
                                   Container(
                                     decoration: BoxDecoration(
@@ -328,7 +288,8 @@ class StatusPage extends GetView<StatusController> {
                                         color: Colors.blue.shade700,
                                         size: 20,
                                       ),
-                                      onPressed: () => controller.showDetails(report),
+                                      onPressed: () =>
+                                          controller.showDetails(report),
                                       padding: const EdgeInsets.all(8),
                                       constraints: const BoxConstraints(),
                                     ),
