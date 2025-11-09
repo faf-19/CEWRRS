@@ -47,7 +47,6 @@ class _ReportViewState extends State<ReportView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
       backgroundColor: Appcolors.background,
       body: Obx(() {
         if (controller.isSendreport.value == true) {
