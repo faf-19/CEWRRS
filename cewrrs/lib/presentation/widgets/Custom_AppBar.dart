@@ -18,6 +18,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
       "status",
       "Settings",
       "OTP Verification",
+      "ReportView",
     ];
 
     return Obx(

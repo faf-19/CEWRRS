@@ -57,6 +57,7 @@ dependencies:
   open_file: ^3.5.10
   url_launcher: ^6.3.2
   iconsax: ^0.0.8
+  google_fonts: ^6.3.2
 
 dev_dependencies:
   flutter_test:

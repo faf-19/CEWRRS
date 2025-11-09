@@ -56,7 +56,7 @@ class HomeController extends GetxController {
     // _getReportPage(), // This will be recalculated every time
     reportPage,
     MapsPage(),
-    StatusPage(),
+    StaffReportPage(),
     SettingsView(),
   ];
 

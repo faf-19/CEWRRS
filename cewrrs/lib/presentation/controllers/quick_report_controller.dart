@@ -13,6 +13,7 @@ class QuuickReportController extends GetxController {
   final HomeController homeController = Get.put(HomeController());
 
   final GlobalKey<FormState> descriptionformKey = GlobalKey<FormState>();
+  final RxInt wordCount = 0.obs;
 
   var tabIndex = 0.obs;
   var showAll = true.obs;
