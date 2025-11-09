@@ -1,9 +1,9 @@
 import 'package:cewrrs/core/config/app_constants.dart';
+import 'package:cewrrs/presentation/controllers/staff_report_controller.dart';
 import 'package:cewrrs/presentation/widgets/HorizontalStepper.dart';
 import 'package:cewrrs/presentation/controllers/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controllers/report_controller.dart';
 import '../../themes/colors.dart';
 import 'steps/step_location.dart';
 import 'steps/step_timing.dart';
@@ -12,21 +12,21 @@ import 'steps/step_response.dart';
 import 'steps/step_review.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 
-class ReportPage extends StatefulWidget {
-  const ReportPage({super.key});
+class StaffReportPage extends StatefulWidget {
+  const StaffReportPage({super.key});
 
   @override
-  State<ReportPage> createState() => _ReportPageState();
+  State<StaffReportPage> createState() => _StaffReportPageState();
 }
 
-class _ReportPageState extends State<ReportPage> {
-  late final ReportController controller;
+class _StaffReportPageState extends State<StaffReportPage> {
+  late final StaffReportController controller;
   late final HomeController homeController;
 
   @override
   void initState() {
     super.initState();
-    controller = Get.put(ReportController());
+    controller = Get.put(StaffReportController());
     homeController = Get.find<HomeController>();
   }
 

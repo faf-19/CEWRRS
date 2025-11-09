@@ -1,10 +1,10 @@
+import 'package:cewrrs/presentation/controllers/staff_report_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../controllers/report_controller.dart';
 import '../../../themes/colors.dart';
 
 class StepLocation extends StatelessWidget {
-  final ReportController controller = Get.find();
+  final StaffReportController controller = Get.find();
 
   StepLocation({super.key});
 

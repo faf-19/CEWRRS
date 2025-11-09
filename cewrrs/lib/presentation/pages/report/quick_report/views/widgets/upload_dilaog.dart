@@ -1,10 +1,8 @@
 // ignore_for_file: must_be_immutable
-
-import 'package:e_carta_app/config/theme/app_colors.dart';
-import 'package:e_carta_app/config/theme/app_text_styles.dart';
+import 'package:cewrrs/presentation/themes/colors.dart';
+import 'package:cewrrs/presentation/themes/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class UploadDialog extends StatelessWidget {
   final VoidCallback onUpload;
@@ -42,7 +40,7 @@ class UploadDialog extends StatelessWidget {
               leading: Icon(Icons.circle, color: Appcolors.primary, size: 8),
               title: Text(
                 text,
-                style: AppTextStyles.bodySmall.copyWith(
+                style: AppTextStyles.button.copyWith(
                   color: Appcolors.primary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -66,8 +64,8 @@ class UploadDialog extends StatelessWidget {
               },
               child: Text(
                 'Cancel'.tr,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: Appcolors.container,
+                style: AppTextStyles.button.copyWith(
+                  color: Appcolors.border,
                   fontWeight: FontWeight.w600,
                   fontSize: 10,
                 ),
@@ -84,8 +82,8 @@ class UploadDialog extends StatelessWidget {
               },
               child: Text(
                 isAudo == true ? "Start Recording".tr : 'Upload'.tr,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: Appcolors.secondary,
+                style: AppTextStyles.button.copyWith(
+                  color: Appcolors.border,
                   fontWeight: FontWeight.w600,
                   fontSize: 10,
                 ),

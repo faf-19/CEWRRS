@@ -3,7 +3,7 @@ import 'package:cewrrs/presentation/bindings/login_binding.dart';
 import 'package:cewrrs/presentation/bindings/maps_binding.dart';
 import 'package:cewrrs/presentation/bindings/quick_report_binding.dart';
 import 'package:cewrrs/presentation/bindings/register_binding.dart';
-import 'package:cewrrs/presentation/bindings/report_binding.dart';
+import 'package:cewrrs/presentation/bindings/staff_report_binding.dart';
 import 'package:cewrrs/presentation/bindings/settings_binding.dart';
 import 'package:cewrrs/presentation/bindings/status_binding.dart';
 import 'package:cewrrs/presentation/pages/IntroPage.dart';
@@ -14,8 +14,9 @@ import 'package:cewrrs/presentation/pages/auth/phone_input_page.dart';
 import 'package:cewrrs/presentation/pages/auth/registration_page.dart';
 import 'package:cewrrs/presentation/pages/home_page.dart';
 import 'package:cewrrs/presentation/pages/map/maps_page.dart';
+import 'package:cewrrs/presentation/pages/report/quick_report/views/report_view.dart';
 import 'package:cewrrs/presentation/pages/report/quick_report_page.dart';
-import 'package:cewrrs/presentation/pages/report/report_page.dart';
+import 'package:cewrrs/presentation/pages/report/staff_report_page.dart';
 import 'package:cewrrs/presentation/pages/status_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -29,11 +30,13 @@ abstract class Routes {
   static const REGISTER = '/register';
   static const PHONE = '/phone';
   static const VERIFY = '/verify';
-  static const QUICK_REPORT = '/quick-report';
-  static const REPORT = '/report';
+  // static const QUICK_REPORT = '/quick-report';
+  static const STAFF_REPORT = '/staff_report';
   static const MAPS = '/maps';
   static const STATUS = '/status';
   static const SETTINGS = '/settings';
+  static const QREPORT = '/report';
+
 }
 
 class AppPages {
@@ -68,15 +71,20 @@ class AppPages {
       page: () => const OtpVerificationPage(),
       binding: AuthBinding(),
     ),
-    GetPage(
-      name: Routes.QUICK_REPORT,
-      page: () => const QuickReportPage(),
-      binding: QuickReportBinding(),
-    ),
-    GetPage(
-      name: Routes.REPORT,
-      page: () => ReportPage(),
+     GetPage(
+      name: Routes.QREPORT,
+      page: () => const ReportView(isSign: false,),
       binding: ReportBinding(),
+    ),
+    // GetPage(
+    //   name: Routes.QUICK_REPORT,
+    //   page: () => const QuickReportPage(),
+    //   binding: QuickReportBinding(),
+    // ),
+    GetPage(
+      name: Routes.STAFF_REPORT,
+      page: () => StaffReportPage(),
+      binding: StaffReportBinding(),
     ),
     GetPage(name: Routes.MAPS, page: () => MapsPage(), binding: MapsBinding()),
     GetPage(

@@ -1,8 +1,9 @@
 // lib/presentation/controllers/home_controller.dart
 import 'package:cewrrs/presentation/pages/Settings_page.dart';
 import 'package:cewrrs/presentation/pages/home_page.dart';
+import 'package:cewrrs/presentation/pages/report/quick_report/views/report_view.dart';
 import 'package:cewrrs/presentation/pages/report/quick_report_page.dart';
-import 'package:cewrrs/presentation/pages/report/report_page.dart';
+import 'package:cewrrs/presentation/pages/report/staff_report_page.dart';
 import 'package:cewrrs/presentation/pages/map/maps_page.dart';
 import 'package:cewrrs/presentation/pages/status_page.dart';
 import 'package:flutter/widgets.dart';
@@ -31,6 +32,7 @@ class HomeController extends GetxController {
   // ─────────────────────────────────────────────────────────────────────
   final storage = GetStorage();
   final userEmail = ''.obs;
+  final isMockUser = false.obs;
 
   // ─────────────────────────────────────────────────────────────────────
   // 2. Navigation State
@@ -45,15 +47,17 @@ class HomeController extends GetxController {
   final RxBool isExpense = true.obs;
 
   // ─────────────────────────────────────────────────────────────────────
-  // 4. Pages for IndexedStack
+  // 4. Pages for IndexedStack - Report page will be dynamic
   // ─────────────────────────────────────────────────────────────────────
-  final pages = <Widget>[
+  Widget get reportPage =>
+      isMockUser.value ? StaffReportPage() : ReportView(isSign: false);
+  List<Widget> get pages => [
     const HomePage(),
-    ReportPage(),
+    // _getReportPage(), // This will be recalculated every time
+    reportPage,
     MapsPage(),
     StatusPage(),
     SettingsView(),
-    QuickReportPage(),
   ];
 
   // ─────────────────────────────────────────────────────────────────────
@@ -72,8 +76,8 @@ class HomeController extends GetxController {
       .toList();
 
   Office? get selectedOffice => offices.firstWhereOrNull(
-        (e) => e.city == selectedCity.value && e.subcity == selectedSubcity.value,
-      );
+    (e) => e.city == selectedCity.value && e.subcity == selectedSubcity.value,
+  );
 
   // ─────────────────────────────────────────────────────────────────────
   // 6. Lifecycle
@@ -88,6 +92,42 @@ class HomeController extends GetxController {
   void _loadUser() {
     final user = storage.read('user');
     userEmail.value = user?['email'] ?? 'Guest';
+
+    // Determine if user is from mock data or storage
+    _determineUserSource();
+  }
+
+  void _determineUserSource() {
+    final currentUserPhone = storage.read('current_user');
+
+    // Define the exact mock users from your LoginController
+    final mockUsers = {
+      '+251911111111': 'password123',
+      '+251922334455': 'secret456',
+      '+251912121212': 'password1212',
+    };
+
+    // Check if current user is one of the mock users
+    if (currentUserPhone != null && mockUsers.containsKey(currentUserPhone)) {
+      isMockUser.value = true;
+      print("User is MOCK USER: $currentUserPhone");
+    } else {
+      isMockUser.value = false;
+      print("User is STORED USER: $currentUserPhone");
+    }
+  }
+
+  Widget _getReportPage() {
+    // Force re-determination of user source
+    _determineUserSource();
+
+    if (isMockUser.value) {
+      print("Showing StaffReportPage for mock user");
+      return StaffReportPage();
+    } else {
+      print("Showing ReportView for stored user");
+      return ReportView(isSign: false);
+    }
   }
 
   void _loadMockData() {
@@ -146,6 +186,14 @@ class HomeController extends GetxController {
 
   void logout() {
     storage.remove('user');
+    storage.remove('current_user');
+    storage.remove('is_logged_in');
     Get.offAllNamed('/login');
+  }
+
+  // Method to force refresh when needed
+  void refreshUserType() {
+    _determineUserSource();
+    update(); // This will rebuild the UI
   }
 }

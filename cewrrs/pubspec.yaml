@@ -45,7 +45,18 @@ dependencies:
   geocoding: ^4.0.0
   flutter_map: ^6.0.0
   latlong2: ^0.9.0
-  iconsax_flutter: ^1.0.1
+  # iconsax_flutter: ^1.0.1
+  vs_scrollbar: ^1.0.0
+  permission_handler: ^12.0.1
+  location: ^8.0.1
+  google_maps_flutter: ^2.14.0
+  video_player: ^2.10.0
+  file_picker: ^10.3.3
+  fepe_record: ^6.1.5
+  audioplayers: ^6.5.1
+  open_file: ^3.5.10
+  url_launcher: ^6.3.2
+  iconsax: ^0.0.8
 
 dev_dependencies:
   flutter_test:

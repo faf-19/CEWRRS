@@ -1,14 +1,13 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
-
-import 'package:e_carta_app/app/modules/report/controllers/report_controller.dart';
-import 'package:e_carta_app/config/theme/app_colors.dart';
-import 'package:e_carta_app/config/theme/app_text_styles.dart';
+import 'package:cewrrs/presentation/controllers/quick_report_controller.dart';
+import 'package:cewrrs/presentation/themes/colors.dart';
+import 'package:cewrrs/presentation/themes/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SendLinkWidget extends StatefulWidget {
-  final ReportController reportController;
+  final QuuickReportController reportController;
   SendLinkWidget({Key? key, required this.reportController});
 
   @override
@@ -61,7 +60,7 @@ class _SendLinkWidgetState extends State<SendLinkWidget> {
                 children: [
                   Text(
                     'Link Upload'.tr,
-                    style: AppTextStyles.bodySmall.copyWith(
+                    style: AppTextStyles.button.copyWith(
                       color: Appcolors.primary,
                     ),
                   ),
@@ -104,7 +103,7 @@ class _SendLinkWidgetState extends State<SendLinkWidget> {
                             separatorBuilder:
                                 (BuildContext context, int index) {
                                   return const Divider(
-                                    color: Appcolors.container,
+                                    color: Appcolors.border,
                                   );
                                 },
                           ),
@@ -150,7 +149,7 @@ class _SendLinkWidgetState extends State<SendLinkWidget> {
                                     const SizedBox(width: 4),
                                     Text(
                                       'Add link'.tr,
-                                      style: AppTextStyles.bodySmall.copyWith(
+                                      style: AppTextStyles.button.copyWith(
                                         color: Appcolors.primary,
                                       ),
                                     ),
@@ -188,7 +187,7 @@ class _SendLinkWidgetState extends State<SendLinkWidget> {
                 ),
                 Text(
                   "You can upload 5 Links".tr,
-                  style: AppTextStyles.bodySmall.copyWith(
+                  style: AppTextStyles.button.copyWith(
                     color: Appcolors.primary,
                   ),
                 ),
@@ -262,8 +261,8 @@ class _SendLinkWidgetState extends State<SendLinkWidget> {
               },
               child: Text(
                 'Add'.tr,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: Appcolors.container,
+                style: AppTextStyles.button.copyWith(
+                  color: Appcolors.border,
                 ),
               ),
             ),
@@ -276,8 +275,8 @@ class _SendLinkWidgetState extends State<SendLinkWidget> {
               },
               child: Text(
                 'Cancel'.tr,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: Appcolors.container,
+                style: AppTextStyles.button.copyWith(
+                  color: Appcolors.border,
                 ),
               ),
             ),

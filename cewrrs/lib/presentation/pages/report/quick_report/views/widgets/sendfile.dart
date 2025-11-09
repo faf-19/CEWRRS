@@ -1,16 +1,17 @@
 import 'dart:io';
 
-import 'package:e_carta_app/app/modules/report/controllers/report_controller.dart';
-import 'package:e_carta_app/app/modules/report/views/widgets/upload_dilaog.dart';
-import 'package:e_carta_app/config/theme/app_colors.dart';
-import 'package:e_carta_app/config/theme/app_text_styles.dart';
+
+import 'package:cewrrs/presentation/controllers/quick_report_controller.dart';
+import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/upload_dilaog.dart';
+import 'package:cewrrs/presentation/themes/colors.dart';
+import 'package:cewrrs/presentation/themes/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:get/get.dart';
 import 'package:file_picker/file_picker.dart';
 
 class SendFileWidget extends StatefulWidget {
-  final ReportController reportController;
+  final QuuickReportController reportController;
   SendFileWidget({Key? key, required this.reportController});
 
   @override
@@ -49,7 +50,7 @@ class _SendLinkWidgetState extends State<SendFileWidget> {
                 children: [
                   Text(
                     'File Upload'.tr,
-                    style: AppTextStyles.bodySmall.copyWith(
+                    style: AppTextStyles.button.copyWith(
                       color: Appcolors.primary,
                     ),
                   ),
@@ -142,7 +143,7 @@ class _SendLinkWidgetState extends State<SendFileWidget> {
                                     const SizedBox(width: 4),
                                     Text(
                                       'Insert File'.tr,
-                                      style: AppTextStyles.bodySmall.copyWith(
+                                      style: AppTextStyles.button.copyWith(
                                         color: Appcolors.primary,
                                       ),
                                     ),

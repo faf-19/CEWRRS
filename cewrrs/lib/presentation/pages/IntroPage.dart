@@ -80,13 +80,15 @@ class IntroPage extends StatelessWidget {
 
                           Text(
                             "Conflict Early Warning System",
-                            style: AppTextStyles.subheading,
+                            style: AppTextStyles.heading,
+  
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppConstants.sectionSpacing),
                           _buildButton(
                             label: "Quick Report",
-                            onPressed: () => Get.toNamed("/phone"),
+                            // onPressed: () => Get.toNamed("/phone"),
+                            onPressed: () => Get.toNamed("/report"),
                             bgColor: Appcolors.primary,
                             textColor: Appcolors.background,
                           ),

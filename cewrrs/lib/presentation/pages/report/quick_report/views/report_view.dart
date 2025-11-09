@@ -1,18 +1,16 @@
-import 'package:e_carta_app/app/modules/report/controllers/report_controller.dart';
-import 'package:e_carta_app/app/modules/report/views/report_list_view.dart';
-import 'package:e_carta_app/app/modules/report/views/widgets/mapview.dart';
-import 'package:e_carta_app/app/modules/report/views/widgets/sendaudio.dart';
-import 'package:e_carta_app/app/modules/report/views/widgets/sendfile.dart';
-import 'package:e_carta_app/app/modules/report/views/widgets/sendlink.dart';
-import 'package:e_carta_app/app/modules/report/views/widgets/sendphoto.dart';
-import 'package:e_carta_app/app/modules/report/views/widgets/sendvideo.dart';
-import 'package:e_carta_app/config/constant/app_button.dart';
-import 'package:e_carta_app/config/theme/app_colors.dart';
-import 'package:e_carta_app/config/theme/app_text_styles.dart';
+import 'package:cewrrs/presentation/controllers/quick_report_controller.dart'
+    show QuuickReportController;
+import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/mapview.dart';
+import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/sendaudio.dart';
+import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/sendfile.dart';
+import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/sendphoto.dart';
+import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/sendvideo.dart';
+import 'package:cewrrs/presentation/themes/colors.dart';
+import 'package:cewrrs/presentation/themes/text_style.dart';
+import 'package:cewrrs/presentation/widgets/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 
 class ReportView extends StatefulWidget {
@@ -27,12 +25,12 @@ class ReportView extends StatefulWidget {
 class _ReportViewState extends State<ReportView>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  late ReportController controller = ReportController();
+  late QuuickReportController controller = QuuickReportController();
 
   @override
   void initState() {
     super.initState();
-    controller = Get.put(ReportController());
+    controller = Get.put(QuuickReportController());
     controller.tabController = TabController(
       length: 4,
       vsync: this,
@@ -49,21 +47,8 @@ class _ReportViewState extends State<ReportView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Appcolors.primary,
-        title: Text(
-          'Report',
-          style: AppTextStyles.headline3.copyWith(color: Appcolors.background),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.list, color: Appcolors.background),
-            onPressed: () {
-              Get.to(() => ReportsListView());
-            },
-          ),
-        ],
-      ),
+     
+      backgroundColor: Appcolors.background,
       body: Obx(() {
         if (controller.isSendreport.value == true) {
           return Center(child: CircularProgressIndicator());
@@ -114,7 +99,8 @@ class _ReportViewState extends State<ReportView>
                                 elevation: 3,
                               ),
                               onPressed: () {
-                                controller.submitReport();
+                                // controller.submitReport();
+                              Get.toNamed("/phone");
                               },
                               child: Text(
                                 "Submit",
@@ -287,7 +273,7 @@ class _ReportViewState extends State<ReportView>
               children: [
                 Text(
                   'Select Time and place'.tr,
-                  style: AppTextStyles.bodySmall.copyWith(
+                  style: AppTextStyles.button.copyWith(
                     color: Appcolors.primary,
                     fontSize: 11,
                   ),
@@ -326,7 +312,7 @@ class _ReportViewState extends State<ReportView>
                   const SizedBox(width: 10),
                   Text(
                     'Time'.tr,
-                    style: AppTextStyles.bodySmall.copyWith(
+                    style: AppTextStyles.button.copyWith(
                       color: Appcolors.primary,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -352,7 +338,7 @@ class _ReportViewState extends State<ReportView>
                   const SizedBox(width: 10),
                   Text(
                     'Place'.tr,
-                    style: AppTextStyles.bodySmall.copyWith(
+                    style: AppTextStyles.button.copyWith(
                       color: Appcolors.primary,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -373,7 +359,7 @@ class _ReportViewState extends State<ReportView>
           children: [
             Text(
               'Time selected:'.tr,
-              style: AppTextStyles.bodySmall.copyWith(
+              style: AppTextStyles.button.copyWith(
                 color: Appcolors.primary,
                 fontSize: 12,
               ),
@@ -392,7 +378,7 @@ class _ReportViewState extends State<ReportView>
             selelctTime();
           },
           buttonColor: Appcolors.primary,
-          textColor: Appcolors.secondary,
+          textColor: Appcolors.accent,
         ),
       ],
     );
@@ -406,7 +392,7 @@ class _ReportViewState extends State<ReportView>
           children: [
             Text(
               'Place selected:'.tr,
-              style: AppTextStyles.bodySmall.copyWith(
+              style: AppTextStyles.button.copyWith(
                 color: Appcolors.primary,
                 fontSize: 12,
               ),
@@ -425,7 +411,7 @@ class _ReportViewState extends State<ReportView>
             Get.to(() => MapView());
           },
           buttonColor: Appcolors.primary,
-          textColor: Appcolors.secondary,
+          textColor: Appcolors.accent,
         ),
       ],
     );
@@ -593,7 +579,7 @@ class _AppTextFieldState extends State<AppTextField> {
               )
             : null,
         //counterText: widget.maxLines != 1 ? '$wordCount / 20' : '',
-        fillColor: Appcolors.container,
+        fillColor: Appcolors.border,
         filled: true,
         border: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.grey),

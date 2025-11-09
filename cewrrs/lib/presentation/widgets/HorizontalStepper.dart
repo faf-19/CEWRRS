@@ -1,10 +1,10 @@
-import 'package:cewrrs/presentation/controllers/report_controller.dart';
+import 'package:cewrrs/presentation/controllers/staff_report_controller.dart';
 import 'package:cewrrs/presentation/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class HorizontalStepper extends StatelessWidget {
-  final ReportController controller = Get.find();
+  final StaffReportController controller = Get.find();
   final List<String> stepTitles;
 
   HorizontalStepper({required this.stepTitles, super.key});

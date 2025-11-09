@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../themes/colors.dart';
 
-class ReportController extends GetxController {
+class StaffReportController extends GetxController {
   // -------------------------------------------------------------------------
   // 1. Stepper & Navigation
   // -------------------------------------------------------------------------

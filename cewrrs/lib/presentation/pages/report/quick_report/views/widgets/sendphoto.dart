@@ -1,16 +1,17 @@
 // ignore_for_file: library_private_types_in_public_api
 import 'dart:io';
-import 'package:e_carta_app/app/modules/report/controllers/report_controller.dart';
-import 'package:e_carta_app/app/modules/report/views/widgets/upload_dilaog.dart';
-import 'package:e_carta_app/config/theme/app_colors.dart';
-import 'package:e_carta_app/config/theme/app_text_styles.dart';
+
+import 'package:cewrrs/presentation/controllers/quick_report_controller.dart';
+import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/upload_dilaog.dart';
+import 'package:cewrrs/presentation/themes/colors.dart';
+import 'package:cewrrs/presentation/themes/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SendPhotoWidget extends StatefulWidget {
-  final ReportController reportController;
+  final QuuickReportController reportController;
   SendPhotoWidget({Key? key, required this.reportController}) : super(key: key);
 
   @override
@@ -76,7 +77,7 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget> {
               children: [
                 Text(
                   'Photo Upload'.tr,
-                  style: AppTextStyles.bodySmall.copyWith(
+                  style: AppTextStyles.button.copyWith(
                     color: Appcolors.primary,
                     fontSize: 12,
                   ),
@@ -181,7 +182,7 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget> {
                                 children: [
                                   Text(
                                     'Gallery'.tr,
-                                    style: AppTextStyles.bodySmall.copyWith(
+                                    style: AppTextStyles.button.copyWith(
                                       color: Appcolors.primary,
                                     ),
                                   ),

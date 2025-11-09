@@ -1,4 +1,5 @@
 // lib/presentation/pages/home/home_page.dart
+import 'package:cewrrs/presentation/pages/report/quick_report/views/report_view.dart';
 import 'package:cewrrs/presentation/themes/colors.dart';
 import 'package:cewrrs/presentation/widgets/donut_chart_painter.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:cewrrs/presentation/controllers/home_controller.dart';
 import 'package:cewrrs/presentation/widgets/classic_navbar.dart';
 import 'package:cewrrs/presentation/widgets/Custom_AppBar.dart';
-import 'package:cewrrs/presentation/pages/report/report_page.dart';
+import 'package:cewrrs/presentation/pages/report/staff_report_page.dart';
 import 'package:cewrrs/presentation/pages/map/maps_page.dart';
 import 'package:cewrrs/presentation/pages/status_page.dart';
 import 'package:cewrrs/presentation/pages/Settings_page.dart';
@@ -16,7 +17,8 @@ class HomePage extends GetView<HomeController> {
 
   static final List<Widget> _pages = [
     const _HomeDashboard(),
-    ReportPage(),
+    // ReportPage(),
+    ReportView(isSign: false),
     MapsPage(),
     StatusPage(),
     SettingsView(),

@@ -56,7 +56,7 @@ class LoginPage extends GetView<LoginController> {
                 // 1. Changed 'ScreenHeight' to 'screenHeight'.
                 // 2. Removed 'const' keyword.
                 SizedBox(
-                  height: screenHeight * 0.15,
+                  height: screenHeight * 0.07,
                 ), // Adjusted height to 15% to avoid large blank space
                 // and prevent potential overflow on smaller screens.
 
@@ -90,7 +90,7 @@ class LoginPage extends GetView<LoginController> {
 
                 // Email (Phone Number)
                 TextField(
-                  controller: controller.emailController,
+                  controller: controller.phoneController,
                   maxLength: 10,
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.next,

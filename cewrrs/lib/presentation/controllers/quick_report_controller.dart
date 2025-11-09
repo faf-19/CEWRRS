@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:cewrrs/presentation/controllers/home_controller.dart';
-import 'package:cewrrs/presentation/themes/colors.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mime/mime.dart';
+import 'package:video_player/video_player.dart';
 
-class ReportController extends GetxController {
-  final ReportService reportService = Get.put(ReportService());
+class QuuickReportController extends GetxController {
   final HomeController homeController = Get.put(HomeController());
 
   final GlobalKey<FormState> descriptionformKey = GlobalKey<FormState>();
@@ -34,7 +35,7 @@ class ReportController extends GetxController {
     'ሰኔ',
     'ሐምሌ',
     'ነሐሴ',
-    'ጳጉሜ',
+    'ጳጉሜ'
   ];
 
   Rx<DateTime> selectedDateTime = Rx<DateTime>(DateTime.now());
@@ -48,7 +49,7 @@ class ReportController extends GetxController {
   late String phonenumberCr = "";
 
   // Reports list
-  var reports = <Report>[].obs;
+  // var reports = <Report>[].obs;
 
   //send image
   RxList<File> selectedImages = <File>[].obs;
@@ -82,31 +83,28 @@ class ReportController extends GetxController {
 
   final count = 0.obs;
   var selectedFilter = "All".obs;
-  var filteredReports = <Report>[].obs;
+  // var filteredReports = <Report>[].obs;
   List<String> get filters => ["All", "PENDING", "ACCEPTED"];
 
   @override
   void onInit() {
     description = TextEditingController();
-    ever(reports, (_) => applyFilter(selectedFilter.value));
+    // ever(reports, (_) => applyFilter(selectedFilter.value));
     super.onInit();
   }
 
-  void applyFilter(String filter) {
-    selectedFilter.value = filter;
+  // void applyFilter(String filter) {
+  //   selectedFilter.value = filter;
 
-    if (filter == "All") {
-      filteredReports.assignAll(reports);
-    } else {
-      filteredReports.assignAll(
-        reports
-            .where(
-              (report) => report.status.toUpperCase() == filter.toUpperCase(),
-            )
-            .toList(),
-      );
-    }
-  }
+  //   if (filter == "All") {
+  //     filteredReports.assignAll(reports);
+  //   } else {
+  //     filteredReports.assignAll(reports
+  //         .where(
+  //             (report) => report.status.toUpperCase() == filter.toUpperCase())
+  //         .toList());
+  //   }
+  // }
 
   void updateMarker(LatLng position) {
     if (position != null) {
@@ -129,89 +127,87 @@ class ReportController extends GetxController {
 
   // Submit report method
   // Update the submitReport method in your ReportController
-  Future<void> submitReport() async {
-    if (!descriptionformKey.currentState!.validate()) {
-      Get.snackbar('Error', 'Please fill all required fields');
-      return;
-    }
+//   Future<void> submitReport() async {
+//     if (!descriptionformKey.currentState!.validate()) {
+//       Get.snackbar('Error', 'Please fill all required fields');
+//       return;
+//     }
 
-    if (!isLocationSelelcted.value) {
-      Get.snackbar('Error', 'Please select a location');
-      return;
-    }
+//     if (!isLocationSelelcted.value) {
+//       Get.snackbar('Error', 'Please select a location');
+//       return;
+//     }
 
-    if (!isDateSelelcted.value) {
-      Get.snackbar('Error', 'Please select incident time');
-      return;
-    }
+//     if (!isDateSelelcted.value) {
+//       Get.snackbar('Error', 'Please select incident time');
+//       return;
+//     }
 
-    // Validate that we have latitude and longitude
-    if (latitude == null || longitude == null) {
-      Get.snackbar('Error', 'Location data is missing');
-      return;
-    }
+//     // Validate that we
 
-    try {
-      isSendreport(true);
-      isLoading(true);
+//     if (latitude == null || longitude == null) {
+//       Get.snackbar('Error', 'Location data is missing');
+//       return;
+//     }
 
-      // Create report request WITHOUT attachments
-      final reportRequest = CreateReportRequest(
-        latitude: latitude!,
-        longitude: longitude!,
-        // phoneNumber: homeController.userPhoneNo.value,
-        phoneNumber: '0910111213',
-        description: description.text.isNotEmpty ? description.text : null,
-        incidentTime: selectedDateTime.value,
-      );
+//     try {
+//       isSendreport(true);
+//       isLoading(true);
 
-      print('Submitting report: ${reportRequest.toJson()}'); // Debug log
+//       // Create report request WITHOUT attachments
+//       final reportRequest = CreateReportRequest(
+//         latitude: latitude!,
+//         longitude: longitude!,
+//         // phoneNumber: homeController.userPhoneNo.value,
+//         phoneNumber: '0910111213',
+//         description: description.text.isNotEmpty ? description.text : null,
+//         incidentTime: selectedDateTime.value,
+//       );
 
-      // Send to API
-      final newReport = await reportService.createReport(reportRequest);
+//       print('Submitting report: ${reportRequest.toJson()}'); // Debug log
 
-      Get.snackbar(
-        'Success',
-        'Report submitted successfully',
-        backgroundColor: Appcolors.success,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+//       // Send to API
+//       final newReport = await reportService.createReport(reportRequest);
 
-      // Clear form
-      clearForm();
-      await getReports();
-      // Optionally navigate to reports list
-      Get.to(() => ReportsListView());
-    } catch (e) {
-      print('Error submitting report: $e'); // Debug log
-      Get.snackbar('Error', 'Failed to submit report: $e');
-    } finally {
-      isSendreport(false);
-      isLoading(false);
-    }
-  }
+//       Get.snackbar('Success', 'Report submitted successfully',
+//           backgroundColor: AppColors.success,
+//           snackPosition: SnackPosition.BOTTOM);
 
-  // Get all reports
-  // Update the getReports method in your ReportController
-  Future<void> getReports() async {
-    try {
-      isLoading(true);
-      print('Fetching reports...'); // Debug log
-      final reportsList = await reportService.getReports();
-      reports.assignAll(reportsList);
-      applyFilter(selectedFilter.value);
-      print('Fetched ${reportsList.length} reports'); // Debug log
-    } catch (e) {
-      print('Error fetching reports: $e'); // Debug log
-      Get.snackbar(
-        'Error',
-        'Failed to load reports: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoading(false);
-    }
-  }
+//       // Clear form
+//       clearForm();
+//       await getReports();
+//       // Optionally navigate to reports list
+//       Get.to(() => ReportsListView());
+//     } catch (e) {
+//       print('Error submitting report: $e'); // Debug log
+//       Get.snackbar('Error', 'Failed to submit report: $e');
+//     } finally {
+//       isSendreport(false);
+//       isLoading(false);
+//     }
+//   }
+
+//   // Get all reports
+// // Update the getReports method in your ReportController
+//   Future<void> getReports() async {
+//     try {
+//       isLoading(true);
+//       print('Fetching reports...'); // Debug log
+//       final reportsList = await reportService.getReports();
+//       reports.assignAll(reportsList);
+//        applyFilter(selectedFilter.value);
+//       print('Fetched ${reportsList.length} reports'); // Debug log
+//     } catch (e) {
+//       print('Error fetching reports: $e'); // Debug log
+//       Get.snackbar(
+//         'Error',
+//         'Failed to load reports: $e',
+//         snackPosition: SnackPosition.BOTTOM,
+//       );
+//     } finally {
+//       isLoading(false);
+//     }
+//   }
 
   // Clear form method
   void clearForm() {

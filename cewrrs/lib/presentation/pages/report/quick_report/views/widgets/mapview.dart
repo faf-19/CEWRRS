@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'package:e_carta_app/app/modules/report/controllers/report_controller.dart';
-import 'package:e_carta_app/app/modules/report/views/report_view.dart';
-import 'package:e_carta_app/config/constant/app_button.dart';
-import 'package:e_carta_app/config/theme/app_colors.dart';
-import 'package:e_carta_app/config/theme/app_text_styles.dart';
+
+import 'package:cewrrs/presentation/controllers/quick_report_controller.dart';
+import 'package:cewrrs/presentation/themes/colors.dart';
+import 'package:cewrrs/presentation/themes/text_style.dart';
+import 'package:cewrrs/presentation/widgets/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,7 +13,7 @@ import 'package:location/location.dart' as loc;
 
 class MapView extends StatelessWidget {
   final Completer<GoogleMapController> _controller = Completer();
-  final ReportController controllers = Get.put(ReportController());
+  final QuuickReportController controllers = Get.put(QuuickReportController());
   final loc.Location location = loc.Location();
 
   @override
@@ -23,7 +23,7 @@ class MapView extends StatelessWidget {
         backgroundColor: Appcolors.primary,
         title: Text(
           'Select Place',
-          style: AppTextStyles.headline3.copyWith(color: Appcolors.background),
+          style: AppTextStyles.heading.copyWith(color: Appcolors.background),
         ),
         leading: IconButton(
           icon: const Icon(
@@ -114,7 +114,7 @@ class MapView extends StatelessWidget {
             shape: BoxShape.circle,
             color: Appcolors.primary,
           ),
-          child: Icon(Iconsax.location5, color: Appcolors.secondary),
+          child: Icon(Iconsax.location, color: Appcolors.accent),
         ),
       ),
     );
@@ -140,7 +140,7 @@ class MapView extends StatelessWidget {
             Get.back();
           },
           buttonColor: Appcolors.primary,
-          textColor: Appcolors.secondary,
+          textColor: Appcolors.accent,
         ),
       ),
     );

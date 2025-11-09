@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 class LoginController extends GetxController {
-  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
   final passwordController = TextEditingController();
   final isLoading = false.obs;
   final isPasswordVisible = false.obs;
@@ -11,49 +11,86 @@ class LoginController extends GetxController {
   // Observable to track if form is valid
   final RxBool isFormValid = false.obs;
 
-  final mockUsers = {
-    // Canonical international format: +2519XXXXXXXX
-    '+251911111111': 'password123',
-    '+251922334455': 'secret456',
-    '+251912121212': 'password1212',
-  };
-
   final storage = GetStorage();
-  final Map<String, String> _normalizedMockUsers = {};
+  
+  // Key for storing users in GetStorage
+  final String _usersKey = 'stored_users';
 
   @override
   void onInit() {
     super.onInit();
     // Listen to text changes to update form validity
-    emailController.addListener(_checkFormValidity);
+    phoneController.addListener(_checkFormValidity);
     passwordController.addListener(_checkFormValidity);
-    // Build normalized mock user map
-    _normalizedMockUsers.clear();
-    mockUsers.forEach((raw, pwd) {
-      final norm = _normalizePhone(raw);
-      if (norm != null) {
-        _normalizedMockUsers[norm] = pwd;
-      }
-    });
+    
+    // Initialize with some sample users if none exist (for testing)
+    _initializeSampleUsers();
   }
 
   @override
   void onClose() {
-    emailController.removeListener(_checkFormValidity);
+    phoneController.removeListener(_checkFormValidity);
     passwordController.removeListener(_checkFormValidity);
-    emailController.dispose();
+    phoneController.dispose();
     passwordController.dispose();
     super.onClose();
   }
 
   void _checkFormValidity() {
-    final phoneValid = emailController.text.trim().isNotEmpty;
+    final phoneValid = phoneController.text.trim().isNotEmpty;
     final passwordValid = passwordController.text.isNotEmpty;
     isFormValid.value = phoneValid && passwordValid;
   }
 
+  // Get all stored users from GetStorage
+  Map<String, String> getStoredUsers() {
+    final storedUsers = storage.read(_usersKey);
+    if (storedUsers is Map) {
+      return Map<String, String>.from(storedUsers);
+    }
+    return {};
+  }
+
+  // Save users to GetStorage
+  void _saveUsers(Map<String, String> users) {
+    storage.write(_usersKey, users);
+  }
+
+  // Initialize with sample users if no users exist
+  void _initializeSampleUsers() {
+    final existingUsers = getStoredUsers();
+    if (existingUsers.isEmpty) {
+      final sampleUsers = {
+        // Canonical international format: +2519XXXXXXXX
+        '+251911111111': 'password123',
+        '+251922334455': 'secret456',
+        '+251912121212': 'password1212',
+      };
+      _saveUsers(sampleUsers);
+    }
+  }
+
+  // Add a new user (useful for registration)
+  void addUser(String phone, String password) {
+    final normalizedPhone = _normalizePhone(phone);
+    if (normalizedPhone == null) return;
+
+    final users = getStoredUsers();
+    users[normalizedPhone] = password;
+    _saveUsers(users);
+  }
+
+  // Check if user exists
+  bool userExists(String phone) {
+    final normalizedPhone = _normalizePhone(phone);
+    if (normalizedPhone == null) return false;
+
+    final users = getStoredUsers();
+    return users.containsKey(normalizedPhone);
+  }
+
   void login() async {
-    final rawInput = emailController.text.trim();
+    final rawInput = phoneController.text.trim();
     final password = passwordController.text;
 
     final phone = _normalizePhone(rawInput);
@@ -65,12 +102,15 @@ class LoginController extends GetxController {
       return;
     }
 
-    if (!_normalizedMockUsers.containsKey(phone)) {
+    // Get users from storage instead of mock data
+    final storedUsers = getStoredUsers();
+
+    if (!storedUsers.containsKey(phone)) {
       Get.snackbar("User Not Found", "No account found for this phone number.");
       return;
     }
 
-    if (_normalizedMockUsers[phone] != password) {
+    if (storedUsers[phone] != password) {
       Get.snackbar(
         "Incorrect Password",
         "Please check your password and try again.",
@@ -82,9 +122,30 @@ class LoginController extends GetxController {
     await Future.delayed(const Duration(seconds: 2));
     isLoading.value = false;
 
+    // Store login session
+    storage.write('current_user', phone);
+    storage.write('is_logged_in', true);
+
     Get.snackbar("Login Successful", "Welcome back!");
     Get.toNamed('/home');
   }
+
+  // Check if user is logged in
+  bool isLoggedIn() {
+    return storage.read('is_logged_in') == true;
+  }
+
+  // Get current user
+  String? getCurrentUser() {
+    return storage.read('current_user');
+  }
+
+  // Logout
+  void logout() {
+    storage.remove('current_user');
+    storage.write('is_logged_in', false);
+  }
+
 
   String? _normalizePhone(String input) {
     final cleaned = input.replaceAll(RegExp(r'[^+\d]'), '');
