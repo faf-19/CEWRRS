@@ -4,18 +4,14 @@ import 'dart:io';
 import 'package:cewrrs/presentation/controllers/quick_report_controller.dart';
 import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/upload_dilaog.dart';
 import 'package:cewrrs/presentation/themes/colors.dart';
-import 'package:cewrrs/presentation/themes/text_style.dart'; // Assuming this defines Appcolors
+import 'package:cewrrs/presentation/themes/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// NOTE: Defining ImageType here for completeness in this file.
 enum ImageType { image, video, unknown }
-
-// NOTE: Assuming QuuickReportController and Appcolors are defined or imported correctly elsewhere
-// and that UploadDialog is also defined and imported.
 
 class SendPhotoWidget extends StatefulWidget {
   final QuuickReportController reportController;
@@ -26,41 +22,15 @@ class SendPhotoWidget extends StatefulWidget {
   _SendPhotoWidgetState createState() => _SendPhotoWidgetState();
 }
 
-class _SendPhotoWidgetState extends State<SendPhotoWidget>
-    with TickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-
+class _SendPhotoWidgetState extends State<SendPhotoWidget> {
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
   }
 
   @override
   void dispose() {
-    _pulseController.dispose();
     super.dispose();
-  }
-
-  // ────── Take Live Photo (Camera) ──────
-  Future<void> _takePhoto() async {
-    final picker = ImagePicker();
-    final XFile? photo = await picker.pickImage(
-      source: ImageSource.camera,
-      maxWidth: 1920,
-      maxHeight: 1920,
-      imageQuality: 85,
-    );
-    if (photo != null) {
-      await _validateAndAdd(File(photo.path));
-    }
   }
 
   // ────── Pick from Gallery (Multi) ──────
@@ -154,8 +124,8 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget>
               ),
             ),
             Positioned(
-              top: 20,
-              right: 20,
+              top: 10,
+              right: 10,
               child: FloatingActionButton.small(
                 backgroundColor: Appcolors.primary,
                 onPressed: () => Navigator.pop(context),
@@ -168,219 +138,28 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget>
     );
   }
 
-  // --- START REFACTORED METHOD ---
-
-  /// Builds the unified, responsive container for the two action buttons (Camera and Gallery).
-  Widget _buildActionButtonsContainer() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Use 450 as the breakpoint for better mobile compatibility
-        final isSmall = constraints.maxWidth < 450;
-        
-        // This is the functional and non-duplicated rendering of the two options
-        final cameraButton = _actionButton(
-          icon: Iconsax.camera,
-          label: 'Take Photo'.tr,
-          onTap: _takePhoto,
-          color: Colors.purple.shade50,
-          iconColor: Colors.purple.shade700,
-          pulse: true,
-        );
-
-        final galleryButton = _actionButton(
-          icon: Iconsax.gallery,
-          label: 'Gallery'.tr,
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (_) => UploadDialog(
-                onUpload: _pickFromGallery,
-                title: 'Upload from Gallery'.tr,
-                contentTexts: [
-                  'Up to 5 photos'.tr,
-                  'Max 20 MB each'.tr,
-                ],
-              ),
-            );
-          },
-          color: Colors.blue.shade50,
-          iconColor: Colors.blue.shade700,
-        );
-        
-        // If small, stack them in a Column (full width)
-        if (isSmall) {
-          return Column(
-            children: [
-              cameraButton,
-              const SizedBox(height: 12),
-              galleryButton,
-            ],
-          );
-        }
-
-        // If large, place them side-by-side in a Row (expanded)
-        return Row(
-          children: [
-            Expanded(child: cameraButton),
-            const SizedBox(width: 16),
-            Expanded(child: galleryButton),
-          ],
-        );
-      },
-    );
-  }
-
-  // --- END REFACTORED METHOD ---
-
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade200,
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Header ──
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Appcolors.primary.withOpacity(.15),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(Iconsax.camera, color: Appcolors.primary, size: 24),
-              ),
-              const SizedBox(width: 14),
-              Text(
-                'Add Photos'.tr,
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Appcolors.primary,
-                ),
-              ),
-              const Spacer(),
-              Obx(() => Chip(
-                    backgroundColor: Appcolors.primary.withOpacity(.1),
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    label: Text(
-                      '${widget.reportController.selectedImages.length}/5',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Appcolors.primary,
-                      ),
-                    ),
-                  )),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // ── Image Previews (Horizontal scroll prevents overflow) ──
-          Obx(() {
-            final images = widget.reportController.selectedImages;
-            if (images.isEmpty) return _buildEmptyState();
-
-            return SizedBox(
-              height: 130,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: images.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 14),
-                itemBuilder: (context, i) {
-                  final file = images[i];
-                  return GestureDetector(
-                    onTap: () => _showPreview(file, i),
-                    child: Stack(
-                      children: [
-                        Hero(
-                          tag: 'photo_$i',
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(18),
-                            child: Image.file(
-                              file,
-                              width: 120,
-                              height: 120,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: GestureDetector(
-                            onTap: () => _delete(i),
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(color: Colors.black26, blurRadius: 4)
-                                ],
-                              ),
-                              child: const Icon(Icons.close, size: 18, color: Colors.red),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            );
-          }),
-
-          const SizedBox(height: 24),
-
-          // ── Action Buttons: Calling the new unified, non-duplicated builder ──
-          Obx(() {
-            final canAdd = widget.reportController.selectedImages.length < 5;
-            if (!canAdd) return const SizedBox();
-
-            return _buildActionButtonsContainer();
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Container(
-      height: 120,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Appcolors.primary.withOpacity(.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Appcolors.primary.withOpacity(.25), width: 2),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Iconsax.image, size: 38, color: Appcolors.primary.withOpacity(.5)),
-          const SizedBox(height: 10),
-          Text(
-            'No photos yet'.tr,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Appcolors.primary.withOpacity(.7),
-              fontWeight: FontWeight.w600,
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: _actionButton(
+        icon: Iconsax.gallery,
+        label: 'Upload Photo'.tr,
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (_) => UploadDialog(
+              onUpload: _pickFromGallery,
+              title: 'Upload from Gallery'.tr,
+              contentTexts: [
+                'Up to 5 photos'.tr,
+                'Max 20 MB each'.tr,
+              ],
             ),
-          ),
-        ],
+          );
+        },
+        color: Colors.blue.shade50,
+        iconColor: Colors.blue.shade700,
       ),
     );
   }
@@ -391,48 +170,39 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget>
     required VoidCallback onTap,
     required Color color,
     required Color iconColor,
-    bool pulse = false,
   }) {
-    // Wrapped with ClipRRect for consistent border radius
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: AnimatedScale(
-        scale: pulse ? _pulseAnimation.value : 1.0,
-        duration: const Duration(milliseconds: 1500),
-        child: InkWell(
-          onTap: onTap,
-          child: Container(
-            height: 90,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: iconColor.withOpacity(.35), width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: iconColor.withOpacity(.25),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        height: 70,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: iconColor.withOpacity(.35), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: iconColor.withOpacity(.25),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: iconColor, size: 32),
-                const SizedBox(height: 8),
-                Text(
-                  label,
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: iconColor,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: iconColor, size: 28),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: iconColor,
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
+          ],
         ),
       ),
     );

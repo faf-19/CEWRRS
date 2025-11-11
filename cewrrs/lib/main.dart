@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     return Obx(() => GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      darkTheme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
       initialRoute: '/intro',
       getPages: AppPages.routes,

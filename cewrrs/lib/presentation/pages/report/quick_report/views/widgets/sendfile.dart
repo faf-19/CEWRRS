@@ -1,168 +1,94 @@
 import 'dart:io';
 
-
 import 'package:cewrrs/presentation/controllers/quick_report_controller.dart';
 import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/upload_dilaog.dart';
 import 'package:cewrrs/presentation/themes/colors.dart';
 import 'package:cewrrs/presentation/themes/text_style.dart';
 import 'package:flutter/material.dart';
-import 'package:open_file/open_file.dart';
 import 'package:get/get.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:iconsax/iconsax.dart';
 
 class SendFileWidget extends StatefulWidget {
   final QuuickReportController reportController;
   SendFileWidget({Key? key, required this.reportController});
 
   @override
-  _SendLinkWidgetState createState() => _SendLinkWidgetState();
+  _SendFileWidgetState createState() => _SendFileWidgetState();
 }
 
-class _SendLinkWidgetState extends State<SendFileWidget> {
+class _SendFileWidgetState extends State<SendFileWidget> {
   void _openFile(PlatformFile file) {
-    OpenFile.open(file.path);
-  }
-
-  void deleteFile(int index) {
-    setState(() {
-      widget.reportController.selectedFile.removeAt(index);
-    });
-    setState(() {});
+    // File opening functionality removed for simplicity
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Card(
-            color: Colors.white,
-            elevation: 1,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'File Upload'.tr,
-                    style: AppTextStyles.button.copyWith(
-                      color: Appcolors.primary,
-                    ),
-                  ),
-                  SizedBox(height: 1),
-                  Container(height: 0.5, color: Colors.grey),
-                  widget.reportController.selectedFile.isNotEmpty
-                      ? SizedBox(
-                          height: 70,
-                          child: ListView.builder(
-                            itemCount:
-                                widget.reportController.selectedFile.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final file =
-                                  widget.reportController.selectedFile[index];
-
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 10.0),
-                                child: GestureDetector(
-                                  onTap: () => _openFile(file),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          file.name,
-                                        ), // Display the file name
-                                      ),
-                                      GestureDetector(
-                                        onTap: () => deleteFile(index),
-                                        child: const Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      : const SizedBox(),
-                  SizedBox(height: 5),
-                  widget.reportController.selectedFile.length < 5
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            InkWell(
-                              onTap: () async {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return UploadDialog(
-                                      onUpload: uploadfile,
-                                      title: 'Upload Files'.tr,
-                                      contentTexts: [
-                                        'You can upload 5  files'.tr,
-                                        'Maximum upload size: 20 MB.'.tr,
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 2,
-                                      blurRadius: 5,
-                                      offset: Offset(
-                                        0,
-                                        3,
-                                      ), // changes the position of the shadow
-                                    ),
-                                  ],
-                                  border: Border.all(
-                                    color: Colors.black,
-                                    width: 1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.file_copy,
-                                      color: Appcolors.primary,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Insert File'.tr,
-                                      style: AppTextStyles.button.copyWith(
-                                        color: Appcolors.primary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : const SizedBox(),
-                  SizedBox(height: 10),
-                  Container(height: 0.5, color: Colors.grey),
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: _actionButton(
+        icon: Iconsax.document,
+        label: 'Upload File'.tr,
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return UploadDialog(
+                onUpload: uploadfile,
+                title: 'Upload Files'.tr,
+                contentTexts: [
+                  'You can upload 5 files'.tr,
+                  'Maximum upload size: 20 MB.'.tr,
                 ],
-              ),
-            ),
-          ),
+              );
+            },
+          );
+        },
+        color: Colors.purple.shade50,
+        iconColor: Colors.purple.shade700,
+      ),
+    );
+  }
 
-          //Description
-        ],
+  Widget _actionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required Color color,
+    required Color iconColor,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        height: 70,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: iconColor.withOpacity(.35), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: iconColor.withOpacity(.25),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: iconColor, size: 28),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: AppTextStyles.button.copyWith(
+                color: iconColor,
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -176,9 +102,10 @@ class _SendLinkWidgetState extends State<SendFileWidget> {
       PlatformFile file = result.files.first;
 
       // Validate the file extension
-      if (file.extension == 'pdf' ||
+      if (file.extension != null &&
+          (file.extension == 'pdf' ||
           file.extension == 'doc' ||
-          file.extension == 'docx') {
+          file.extension == 'docx')) {
         // Get the file size
         var fileSize = await File(file.path!).length();
         double fileSizeInMegabytes = fileSize / (1024 * 1024);
@@ -186,7 +113,6 @@ class _SendLinkWidgetState extends State<SendFileWidget> {
         // Validate the file size
         if (fileSizeInMegabytes <= 20) {
           // File is valid and within the size limit, proceed with processing
-          // Add your custom file processing logic here
           setState(() {
             widget.reportController.selectedFile.add(file);
           });
@@ -195,14 +121,10 @@ class _SendLinkWidgetState extends State<SendFileWidget> {
             "File Too Large!!",
             "Please select a file smaller than 20 MB".tr,
           );
-          // File is too large
         }
       } else {
         Get.snackbar("Invalid File!!".tr, "Please select a PDF or DOC file".tr);
-        // Invalid file type
       }
-    } else {
-      // User canceled the file picking
     }
   }
 }
