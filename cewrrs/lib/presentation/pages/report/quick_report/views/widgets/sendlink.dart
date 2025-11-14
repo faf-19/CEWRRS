@@ -15,12 +15,10 @@ class SendLinkWidget extends StatefulWidget {
 }
 
 class _SendLinkWidgetState extends State<SendLinkWidget> {
-  TextEditingController textEditingController = TextEditingController();
   final _link = TextEditingController();
 
   @override
   void dispose() {
-    textEditingController.dispose();
     _link.dispose();
     super.dispose();
   }
@@ -42,133 +40,93 @@ class _SendLinkWidgetState extends State<SendLinkWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Padding(
+      padding: const EdgeInsets.all(16),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            color: Colors.white,
-            elevation: 1,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'Link Upload'.tr,
-                    style: AppTextStyles.button.copyWith(
-                      color: Appcolors.primary,
+          // Action button for adding links
+          _actionButton(
+            icon: Icons.link,
+            label: 'Add URL Links'.tr,
+            onTap: () => _showLinkDialog(context),
+            color: Colors.blue.shade50,
+            iconColor: Colors.blue.shade700,
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Links preview list - Reduced height
+          if (widget.reportController.selectedLinks.isNotEmpty)
+            Container(
+              height: 120, // Reduced height
+              child: ListView.builder(
+                itemCount: widget.reportController.selectedLinks.length,
+                itemBuilder: (context, index) {
+                  final link = widget.reportController.selectedLinks[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: const Icon(Icons.link, color: Colors.blue),
+                      title: Text(
+                        link,
+                        style: const TextStyle(fontSize: 12),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, size: 16),
+                        onPressed: () => deleteLink(index),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 2),
-                  Container(height: 0.5, color: Colors.grey),
-                  widget.reportController.selectedLinks.isNotEmpty
-                      ? SizedBox(
-                          height: 10,
-                          child: ListView.separated(
-                            itemCount:
-                                widget.reportController.selectedLinks.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final link =
-                                  widget.reportController.selectedLinks[index];
-
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 10.0),
-                                child: GestureDetector(
-                                  onTap: () => _showLinkInPopup(link),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.link,
-                                        color: Appcolors.primary,
-                                      ),
-                                      SizedBox(width: 2),
-                                      Expanded(child: Text(link)),
-                                      GestureDetector(
-                                        onTap: () => deleteLink(index),
-                                        child: const Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                                  return const Divider(
-                                    color: Appcolors.border,
-                                  );
-                                },
-                          ),
-                        )
-                      : SizedBox(height: 6),
-                  SizedBox(height: 2),
-                  widget.reportController.selectedLinks.length < 5
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            InkWell(
-                              onTap: () async {
-                                _showLinkDialog(context);
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 2,
-                                      blurRadius: 5,
-                                      offset: Offset(
-                                        0,
-                                        3,
-                                      ), // changes the position of the shadow
-                                    ),
-                                  ],
-                                  border: Border.all(
-                                    color: Colors.black,
-                                    width: 1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.file_copy,
-                                      color: Appcolors.primary,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Add link'.tr,
-                                      style: AppTextStyles.button.copyWith(
-                                        color: Appcolors.primary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : const SizedBox(),
-                  SizedBox(height: 7),
-                  Container(height: 0.5, color: Colors.grey),
-                ],
+                  );
+                },
               ),
             ),
-          ),
-
-          //Description
         ],
+      ),
+    );
+  }
+  
+  Widget _actionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required Color color,
+    required Color iconColor,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        height: 60, // Reduced height
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: iconColor.withOpacity(.35), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: iconColor.withOpacity(.25),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: iconColor, size: 24), // Reduced icon size
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: AppTextStyles.button.copyWith(
+                color: iconColor,
+                fontSize: 11, // Reduced font size
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

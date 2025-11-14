@@ -7,6 +7,40 @@ import 'package:cewrrs/presentation/controllers/login_controller.dart';
 import 'package:cewrrs/presentation/themes/colors.dart';
 
 class LoginPage extends GetView<LoginController> {
+  // Helper method to build credential rows
+  Widget _buildCredentialRow(String phone, String password) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            phone,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade800,
+              fontFamily: "Montserrat",
+            ),
+          ),
+          Text(
+            password,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade800,
+              fontFamily: "Montserrat",
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -156,6 +190,39 @@ class LoginPage extends GetView<LoginController> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 24),
+
+                // Test Credentials
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Test Credentials",
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          fontFamily: "Montserrat",
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildCredentialRow("+251911111111", "password123"),
+                      const SizedBox(height: 4),
+                      _buildCredentialRow("+251922334455", "secret456"),
+                      const SizedBox(height: 4),
+                      _buildCredentialRow("+251912121212", "password1212"),
+                    ],
+                  ),
+                ),
+                
                 const SizedBox(height: 24),
 
                 // Login Button

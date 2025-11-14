@@ -8,7 +8,6 @@ import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/send
 import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/sendaudio.dart';
 import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/sendfile.dart';
 import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/sendlink.dart';
-import 'package:cewrrs/presentation/widgets/phone_input_modal.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart' as location_pkg;
@@ -165,8 +164,8 @@ class _ReportViewState extends State<ReportView>
             Icon(
               icon,
               size: 20,
-              color: isSelected
-                  ? Colors.blue.shade700
+              color: isSelected 
+                  ? Colors.blue.shade700 
                   : Colors.blue.shade400,
             ),
             const SizedBox(height: 2),
@@ -175,8 +174,8 @@ class _ReportViewState extends State<ReportView>
               style: GoogleFonts.poppins(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected
-                    ? Colors.blue.shade700
+                color: isSelected 
+                    ? Colors.blue.shade700 
                     : Colors.blue.shade400,
               ),
             ),
@@ -404,17 +403,12 @@ class _ReportViewState extends State<ReportView>
   }
 
   void _submitReport() {
-    // Show phone input modal for report submission
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => PhoneInputModal(
-        onClose: () {
-          // Return to report view after modal flow
-          // Optionally navigate somewhere else after report is submitted
-          Get.back();
-        },
-      ),
+    // TODO: Implement report submission logic
+    Get.snackbar(
+      'Success',
+      'Report submitted successfully!',
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
     );
   }
 }

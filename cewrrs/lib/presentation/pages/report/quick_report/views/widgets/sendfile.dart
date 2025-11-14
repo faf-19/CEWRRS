@@ -22,32 +22,105 @@ class _SendFileWidgetState extends State<SendFileWidget> {
     // File opening functionality removed for simplicity
   }
 
+  // URL input controller and category selection
+  final TextEditingController urlController = TextEditingController();
+  String selectedCategory = 'Others';
+  final List<String> categories = ['Facebook', 'YouTube', 'TikTok', 'Others'];
+
+  @override
+  void dispose() {
+    urlController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: _actionButton(
-        icon: Iconsax.document,
-        label: 'Upload File'.tr,
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return UploadDialog(
-                onUpload: uploadfile,
-                title: 'Upload Files'.tr,
-                contentTexts: [
-                  'You can upload 5 files'.tr,
-                  'Maximum upload size: 20 MB.'.tr,
-                ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // File Upload Section
+          _actionButton(
+            icon: Iconsax.document,
+            label: 'Upload PDF/DOCX'.tr,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return UploadDialog(
+                    onUpload: uploadfile,
+                    title: 'Upload Files'.tr,
+                    contentTexts: [
+                      'Upload PDF or DOCX files'.tr,
+                      'Maximum upload size: 20 MB.'.tr,
+                      'Up to 5 files allowed'.tr,
+                    ],
+                  );
+                },
               );
             },
-          );
-        },
-        color: Colors.purple.shade50,
-        iconColor: Colors.purple.shade700,
+            color: Colors.purple.shade50,
+            iconColor: Colors.purple.shade700,
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Show uploaded files
+          if (widget.reportController.selectedFile.isNotEmpty)
+            Container(
+              height: 120, // Reduced height
+              child: ListView.builder(
+                itemCount: widget.reportController.selectedFile.length,
+                itemBuilder: (context, index) {
+                  final file = widget.reportController.selectedFile[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: Icon(
+                        _getFileIcon(file.extension),
+                        color: Colors.purple,
+                      ),
+                      title: Text(
+                        file.name,
+                        style: const TextStyle(fontSize: 12),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        '${(file.size / 1024).toStringAsFixed(1)} KB',
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, size: 16),
+                        onPressed: () => _deleteFile(index),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
       ),
     );
+  }
+
+  IconData _getFileIcon(String? extension) {
+    switch (extension?.toLowerCase()) {
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'doc':
+      case 'docx':
+        return Icons.description;
+      default:
+        return Icons.insert_drive_file;
+    }
+  }
+
+  void _deleteFile(int index) {
+    setState(() {
+      widget.reportController.selectedFile.removeAt(index);
+    });
   }
 
   Widget _actionButton({

@@ -32,34 +32,57 @@ class _SendVideowidgetState extends State<SendVideoWidget> {
     final List<XFile>? videos = await picker.pickMultipleMedia();
     if (videos != null) {
       for (var video in videos) {
-        File file = File(video.path);
-        if (await file.exists()) {
-          int fileSize = await file.length();
-          if (fileSize > maxSizeInBytes) {
-            Get.snackbar(
-              "Invalid File!!".tr,
-              "Please select a Video file less than 50 MB".tr,
-            );
-            return;
-          }
-          if (fileSize <= maxSizeInBytes) {
-            final videoType = await widget.reportController.getVideoType(file);
-            if (videoType == VideoType.video) {
-              setState(() {
-                if (!widget.isSignLangauge) {
-                  widget.reportController.selectedVideos.add(file);
-                } else {
-                  widget.reportController.selectedSignVideos.add(file);
-                }
-              });
+        await _processVideo(File(video.path), maxSizeInBytes);
+      }
+    }
+  }
+
+  // ────── Pick from Camera ──────
+  Future<void> _getFromCamera() async {
+    final int maxSizeInBytes = 50 * 1024 * 1024; // 50 MB
+    try {
+      final XFile? video = await picker.pickVideo(
+        source: ImageSource.camera,
+        maxDuration: const Duration(minutes: 2), // Limit to 2 minutes
+      );
+      if (video != null) {
+        await _processVideo(File(video.path), maxSizeInBytes);
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Camera Error".tr,
+        "Failed to capture video: $e".tr,
+      );
+    }
+  }
+
+  // ────── Process Video ──────
+  Future<void> _processVideo(File file, int maxSizeInBytes) async {
+    if (await file.exists()) {
+      int fileSize = await file.length();
+      if (fileSize > maxSizeInBytes) {
+        Get.snackbar(
+          "Invalid File!!".tr,
+          "Please select a Video file less than 50 MB".tr,
+        );
+        return;
+      }
+      if (fileSize <= maxSizeInBytes) {
+        final videoType = await widget.reportController.getVideoType(file);
+        if (videoType == VideoType.video) {
+          setState(() {
+            if (!widget.isSignLangauge) {
+              widget.reportController.selectedVideos.add(file);
             } else {
-              Get.snackbar("Invalid File!!".tr, "Please select a Video.".tr);
+              widget.reportController.selectedSignVideos.add(file);
             }
-          }
+          });
         } else {
-          print("File does not exist");
+          Get.snackbar("Invalid File!!".tr, "Please select a Video.".tr);
         }
       }
+    } else {
+      print("File does not exist");
     }
   }
 
@@ -78,18 +101,22 @@ class _SendVideowidgetState extends State<SendVideoWidget> {
       padding: const EdgeInsets.all(16),
       child: _actionButton(
         icon: Iconsax.video,
-        label: 'Upload Video'.tr,
+        label: 'Add Videos'.tr,
         onTap: () {
           showDialog(
             context: context,
             builder: (BuildContext context) {
               return UploadDialog(
-                onUpload: _getFromGallery,
-                title: 'Upload Video'.tr,
+                title: 'Add Videos'.tr,
                 contentTexts: [
+                  'Record video with camera'.tr,
+                  'Choose from gallery'.tr,
                   'You can upload 2 Video files'.tr,
                   'Maximum upload size: 50 MB.'.tr,
                 ],
+                showCameraOptions: true,
+                onCamera: _getFromCamera,
+                onGallery: _getFromGallery,
               );
             },
           );

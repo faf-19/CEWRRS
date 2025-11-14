@@ -68,6 +68,9 @@ class QuuickReportController extends GetxController {
   //Send link
   RxList<String> selectedLinks = <String>[].obs;
 
+  //Send URL with categories
+  RxList<Map<String, String>> selectedUrls = <Map<String, String>>[].obs;
+
   //send file
   RxList<PlatformFile> selectedFile = <PlatformFile>[].obs;
 
@@ -217,6 +220,7 @@ class QuuickReportController extends GetxController {
     selectedVideos.clear();
     selectedSignVideos.clear();
     selectedLinks.clear();
+    selectedUrls.clear();
     selectedFile.clear();
     isLocationSelelcted(false);
     isDateSelelcted(false);

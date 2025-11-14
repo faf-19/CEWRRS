@@ -33,18 +33,40 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget> {
     super.dispose();
   }
 
+  // ────── Pick from Camera ──────
+  Future<void> _pickFromCamera() async {
+    final picker = ImagePicker();
+    try {
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+      if (image != null) {
+        await _validateAndAdd(File(image.path));
+      }
+    } catch (e) {
+      _snack('Camera Error', 'Failed to capture image: $e');
+    }
+  }
+
   // ────── Pick from Gallery (Multi) ──────
   Future<void> _pickFromGallery() async {
     final picker = ImagePicker();
-    final List<XFile>? images = await picker.pickMultiImage(
-      maxWidth: 1920,
-      maxHeight: 1920,
-      imageQuality: 85,
-    );
-    if (images != null && images.isNotEmpty) {
-      for (var img in images) {
-        await _validateAndAdd(File(img.path));
+    try {
+      final List<XFile>? images = await picker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+      if (images != null && images.isNotEmpty) {
+        for (var img in images) {
+          await _validateAndAdd(File(img.path));
+        }
       }
+    } catch (e) {
+      _snack('Gallery Error', 'Failed to pick images: $e');
     }
   }
 
@@ -142,24 +164,88 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: _actionButton(
-        icon: Iconsax.gallery,
-        label: 'Upload Photo'.tr,
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (_) => UploadDialog(
-              onUpload: _pickFromGallery,
-              title: 'Upload from Gallery'.tr,
-              contentTexts: [
-                'Up to 5 photos'.tr,
-                'Max 20 MB each'.tr,
-              ],
+      child: Column(
+        children: [
+          // Action button for adding photos
+          _actionButton(
+            icon: Iconsax.camera,
+            label: 'Add Photos'.tr,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (_) => UploadDialog(
+                  title: 'Add Photos'.tr,
+                  contentTexts: [
+                    'Take photo with camera'.tr,
+                    'Choose from gallery'.tr,
+                    'Up to 5 photos'.tr,
+                    'Max 20 MB each'.tr,
+                  ],
+                  showCameraOptions: true,
+                  onCamera: _pickFromCamera,
+                  onGallery: _pickFromGallery,
+                ),
+              );
+            },
+            color: Colors.blue.shade50,
+            iconColor: Colors.blue.shade700,
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Photo preview grid for selected images
+          if (widget.reportController.selectedImages.isNotEmpty)
+            Container(
+              height: 150, // Reduced height
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 6,
+                  mainAxisSpacing: 6,
+                  childAspectRatio: 1,
+                ),
+                itemCount: widget.reportController.selectedImages.length,
+                itemBuilder: (context, index) {
+                  final image = widget.reportController.selectedImages[index];
+                  return GestureDetector(
+                    onTap: () => _showPreview(image, index),
+                    child: Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            image,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
+                        ),
+                        // Delete button
+                        Positioned(
+                          top: 2,
+                          right: 2,
+                          child: GestureDetector(
+                            onTap: () => _delete(index),
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                size: 12,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          );
-        },
-        color: Colors.blue.shade50,
-        iconColor: Colors.blue.shade700,
+        ],
       ),
     );
   }
