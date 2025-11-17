@@ -32,9 +32,10 @@ class StepLocation extends StatelessWidget {
                   Text(
                     "Incident Location",
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Appcolors.primary,
+                      fontFamily: 'Montserrat',
                     ),
                   ),
                 ],
@@ -43,9 +44,10 @@ class StepLocation extends StatelessWidget {
               Text(
                 "Please provide the exact location where the incident occurred. ",
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   color: Colors.grey[700],
                   height: 1.5,
+                  fontFamily: 'Montserrat',
                 ),
               ),
             ],
@@ -95,7 +97,7 @@ class StepLocation extends StatelessWidget {
     return Obx(
       () => DropdownButtonFormField<String>(
         value: selected.value,
-        // hint: Text("Select $label"),
+        hint: Text("Select $label", style: TextStyle(fontFamily: 'Montserrat', fontSize: 12, color: Appcolors.primary)),
         decoration: InputDecoration(
           labelText: label,
           filled: true,
@@ -118,7 +120,7 @@ class StepLocation extends StatelessWidget {
           ),
         ),
         items: items
-            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontFamily: 'Montserrat', fontSize: 12))))
             .toList(),
         onChanged: (v) => selected.value = v,
         dropdownColor: Appcolors.background,
@@ -131,6 +133,7 @@ class StepLocation extends StatelessWidget {
       () => TextFormField(
         initialValue: value.value,
         onChanged: (v) => value.value = v,
+        style: TextStyle(fontFamily: 'Montserrat', fontSize: 12),
         decoration: InputDecoration(
           labelText: label,
           // hintText: "e.g. Piassa, near St. George Church",

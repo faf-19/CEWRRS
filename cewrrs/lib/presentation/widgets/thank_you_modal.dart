@@ -47,7 +47,7 @@ class _ThankYouModalState extends State<ThankYouModal>
     ));
     
     _animationController.forward();
-    
+
     // Auto close after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
@@ -163,58 +163,61 @@ class _ThankYouModalState extends State<ThankYouModal>
                         
                         // Success Message
                         Text(
-                          'Your report has been submitted successfully.\n\nWe have received your incident report and will review it shortly. Thank you for helping make our community safer.',
+                          'Your submission has been received and will be reviewed promptly. Your vigilance helps keep our community safe.',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.grey,
                             height: 1.5,
+                            fontFamily: 'Montserrat',
                           ),
                         ),
                         
                         const SizedBox(height: 24),
                         
                         // Report ID
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.blue.withOpacity(0.3)),
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                'Report ID',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.blue.shade700,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'RPT-${DateTime.now().millisecondsSinceEpoch % 1000000}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                  letterSpacing: 1,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        // Container(
+                        //   padding: const EdgeInsets.symmetric(
+                        //     horizontal: 16,
+                        //     vertical: 8,
+                        //   ),
+                        //   decoration: BoxDecoration(
+                        //     color: Colors.blue.withOpacity(0.1),
+                        //     borderRadius: BorderRadius.circular(8),
+                        //     border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                        //   ),
+                        //   child: Column(
+                        //     children: [
+                        //       Text(
+                        //         'Report ID',
+                        //         style: TextStyle(
+                        //           fontSize: 12,
+                        //           color: Colors.blue.shade700,
+                        //           fontWeight: FontWeight.w500,
+                        //           fontFamily: 'Montserrat',
+                        //         ),
+                        //       ),
+                        //       const SizedBox(height: 4),
+                        //       Text(
+                        //         'RPT-${DateTime.now().millisecondsSinceEpoch % 1000000}',
+                        //         style: const TextStyle(
+                        //           fontSize: 16,
+                        //           fontWeight: FontWeight.bold,
+                        //           color: Colors.blue,
+                        //           letterSpacing: 1,
+                        //           fontFamily: 'Montserrat',
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
                         
                         const SizedBox(height: 24),
                         
                         // Close Button
                         SizedBox(
-                          width: double.infinity,
-                          height: 48,
+                          width: 120,
+                          height: 40,
                           child: ElevatedButton(
                             onPressed: _closeModal,
                             style: ElevatedButton.styleFrom(
@@ -224,10 +227,12 @@ class _ThankYouModalState extends State<ThankYouModal>
                               ),
                               elevation: 2,
                             ),
-                            child: Text(
-                              'Continue',
-                              style: AppTextStyles.button.copyWith(
+                            child: const Text(
+                              'Done',
+                              style: TextStyle(
+                                fontSize: 12,
                                 color: Colors.white,
+                                fontFamily: 'Montserrat',
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

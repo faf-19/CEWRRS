@@ -20,7 +20,7 @@ import 'package:cewrrs/presentation/pages/report/staff_report_page.dart';
 import 'package:cewrrs/presentation/pages/status_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../presentation/bindings/auth_binding.dart';
+import 'package:cewrrs/presentation/bindings/auth_binding.dart';
 
 abstract class Routes {
   // --- Define all route names as static constants for clean access ---
@@ -71,10 +71,10 @@ class AppPages {
       page: () => const OtpVerificationPage(),
       binding: AuthBinding(),
     ),
-     GetPage(
+    GetPage(
       name: Routes.QREPORT,
-      page: () => const ReportView(isSign: false,),
-      binding: ReportBinding(),
+      page: () => const ReportView(isSign: false),
+      binding: QuickReportBinding(),
     ),
     // GetPage(
     //   name: Routes.QUICK_REPORT,

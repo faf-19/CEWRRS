@@ -39,9 +39,10 @@ class StepResponse extends StatelessWidget {
                     Text(
                       "Response Detail",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Appcolors.primary,
+                        fontFamily: 'Montserrat',
                       ),
                     ),
                   ],
@@ -50,9 +51,10 @@ class StepResponse extends StatelessWidget {
                 Text(
                   "Please provide the exact location where the incident occurred. ",
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: Colors.grey[700],
                     height: 1.5,
+                    fontFamily: 'Montserrat',
                   ),
                 ),
               ],
@@ -62,7 +64,7 @@ class StepResponse extends StatelessWidget {
 
           // Incident description is required on final submit
           _textField(
-            "Incident Description",
+            "Description",
             controller.description,
             maxLines: 4,
           ),
@@ -88,6 +90,7 @@ class StepResponse extends StatelessWidget {
     return Obx(() {
       return DropdownButtonFormField<String>(
         value: selected.value,
+        hint: Text("Select $label", style: TextStyle(fontFamily: 'Montserrat', fontSize: 12, color: Appcolors.primary)),
         decoration: InputDecoration(
           //labelText: label,
           filled: true,
@@ -95,7 +98,7 @@ class StepResponse extends StatelessWidget {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
         items: items
-            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontFamily: 'Montserrat', fontSize: 12))))
             .toList(),
         onChanged: (v) => selected.value = v,
       );
@@ -108,6 +111,7 @@ class StepResponse extends StatelessWidget {
         initialValue: value.value,
         onChanged: (v) => value.value = v,
         maxLines: maxLines,
+        style: TextStyle(fontFamily: 'Montserrat', fontSize: 12),
         decoration: InputDecoration(
           labelText: label,
           filled: true,
@@ -175,9 +179,10 @@ class StepResponse extends StatelessWidget {
                     : "Click to Snap or Upload a Picture/Video",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   color: hasFile ? Appcolors.primary : Appcolors.textDark,
                   fontWeight: hasFile ? FontWeight.w600 : null,
+                  fontFamily: 'Montserrat',
                 ),
               ),
             ],

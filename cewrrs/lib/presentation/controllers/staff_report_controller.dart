@@ -3,33 +3,48 @@ import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import '../../../core/utils/validation/validators.dart';
+import '../../../core/services/local_storage_service.dart';
+import '../../../data/models/report_model.dart';
 import '../themes/colors.dart';
 
+/// StaffReportController with enhanced security and validation
+/// This controller handles staff emergency reporting with improved code quality
 class StaffReportController extends GetxController {
   // -------------------------------------------------------------------------
-  // 1. Stepper & Navigation
+  // 1. Dependencies and Services
+  // -------------------------------------------------------------------------
+  final LocalStorageService _storageService = LocalStorageService();
+  
+  // -------------------------------------------------------------------------
+  // 2. Stepper & Navigation
   // -------------------------------------------------------------------------
   final RxInt currentStep = 0.obs;
   final PageController pageController = PageController();
 
+  /// Check if current step is the last step
   bool get isLastStep => currentStep.value == 4;
+  
+  /// Check if current step is the first step
   bool get isFirstStep => currentStep.value == 0;
 
   // -------------------------------------------------------------------------
-  // 2. Edit / Expand helpers (now inside the class)
+  // 3. Edit / Expand helpers
   // -------------------------------------------------------------------------
   final RxBool isInEditMode = false.obs;
   final RxMap<String, bool> expandedFields = <String, bool>{}.obs;
 
   // -------------------------------------------------------------------------
-  // 3. Attachment
+  // 4. Attachment Management
   // -------------------------------------------------------------------------
   final Rxn<XFile> selectedFile = Rxn<XFile>();
   final Rxn<Uint8List> selectedBytes = Rxn<Uint8List>();
   final RxBool hasAttachment = false.obs;
 
   // -------------------------------------------------------------------------
-  // 4. Location data
+  // 5. Location Data (Ethiopian Administrative Divisions)
   // -------------------------------------------------------------------------
   final RxList<String> regions = [
     'Addis Ababa',
@@ -58,6 +73,7 @@ class StaffReportController extends GetxController {
     'Woreda E',
   ].obs;
 
+  /// Ethiopian administrative subdivisions
   final RxMap<String, List<String>> subCities = <String, List<String>>{
     'Addis Ababa': [
       'Addis Ketema',
@@ -75,7 +91,7 @@ class StaffReportController extends GetxController {
   }.obs;
 
   // -------------------------------------------------------------------------
-  // 5. Incident Details
+  // 6. Incident Details - Dropdown Options
   // -------------------------------------------------------------------------
   final RxList<String> incidentTypes = [
     'Conflict',
@@ -116,7 +132,7 @@ class StaffReportController extends GetxController {
   final RxnString selectedContext = RxnString();
 
   // -------------------------------------------------------------------------
-  // 6. Response
+  // 7. Response Information
   // -------------------------------------------------------------------------
   final RxList<String> responseTypes = [
     'Mediation',
@@ -132,7 +148,7 @@ class StaffReportController extends GetxController {
   final RxString actionTaken = ''.obs;
 
   // -------------------------------------------------------------------------
-  // 7. Core Form Fields
+  // 8. Core Form Fields
   // -------------------------------------------------------------------------
   final RxnString selectedRegion = RxnString();
   final RxnString selectedZone = RxnString();
@@ -147,16 +163,23 @@ class StaffReportController extends GetxController {
   final Rxn<TimeOfDay> incidentTime = Rxn<TimeOfDay>();
 
   // -------------------------------------------------------------------------
-  // 8. Navigation helpers
+  // 9. Location Management (using latlong2 for Flutter Map)
   // -------------------------------------------------------------------------
+  final Rxn<LatLng> selectedLocation = Rxn<LatLng>();
+  final RxBool isLocationSelelcted = false.obs;
+
+  // -------------------------------------------------------------------------
+  // 10. Navigation and Step Management
+  // -------------------------------------------------------------------------
+  
+  /// Navigate to next step with validation
   void nextStep() {
     if (!validateCurrentStep()) return;
 
     // Submit on the Review step (index 4)
     if (currentStep.value == 4) {
       if (validateAndSubmit()) {
-        showThankYouDialog();
-        resetForm();
+        _submitReport();
       }
       return;
     }
@@ -173,6 +196,7 @@ class StaffReportController extends GetxController {
     }
   }
 
+  /// Navigate to previous step
   void previousStep() {
     if (currentStep.value > 0) {
       currentStep.value--;
@@ -187,7 +211,177 @@ class StaffReportController extends GetxController {
   }
 
   // -------------------------------------------------------------------------
-  // 9. Media Picker
+  // 11. UI Helper Methods
+  // -------------------------------------------------------------------------
+
+  /// Show error message with consistent styling
+  void _showError(String message) {
+    Get.snackbar(
+      'Validation Error',
+      message,
+      backgroundColor: Appcolors.error,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+      duration: const Duration(seconds: 3),
+    );
+  }
+
+  /// Show success message
+  void _showSuccess(String message) {
+    Get.snackbar(
+      'Success',
+      message,
+      backgroundColor: Appcolors.primary,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+      duration: const Duration(seconds: 2),
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // 12. Validation Methods
+  // -------------------------------------------------------------------------
+
+  /// Validate location information
+  bool _validateLocation() {
+    if (selectedRegion.value == null) {
+      _showError('Please select a Region/City');
+      return false;
+    }
+
+    final bool isSpecial =
+        selectedRegion.value == "Addis Ababa" ||
+        selectedRegion.value == "Dire Dawa";
+    final String? zoneOrSubCity = isSpecial
+        ? selectedSubCity.value
+        : selectedZone.value;
+
+    if (zoneOrSubCity == null) {
+      _showError('Please select ${isSpecial ? 'a Sub-City' : 'a Zone'}');
+      return false;
+    }
+
+    if (selectedWoreda.value == null) {
+      _showError('Please select a Woreda');
+      return false;
+    }
+    
+    if (selectedKebele.value == null) {
+      _showError('Please select a Kebele');
+      return false;
+    }
+    
+    return true;
+  }
+
+  /// Validate timing and incident details
+  bool _validateTiming() {
+    if (selectedIncidentType.value == null) {
+      _showError('Please select Incident Type');
+      return false;
+    }
+    
+    if (incidentDate.value == null) {
+      _showError('Please select Incident Date');
+      return false;
+    }
+    
+    if (incidentTime.value == null) {
+      _showError('Please select Incident Time');
+      return false;
+    }
+    
+    if (selectedVictim.value == null) {
+      _showError('Please select Victim');
+      return false;
+    }
+    
+    if (selectedCause.value == null) {
+      _showError('Please select Cause');
+      return false;
+    }
+    
+    if (selectedLevel.value == null) {
+      _showError('Please select Incident Level');
+      return false;
+    }
+    
+    if (selectedContext.value == null) {
+      _showError('Please select Incident Context');
+      return false;
+    }
+
+    return true;
+  }
+
+  /// Validate details and response information
+  bool _validateDetails() {
+    if (selectedResponseType.value == null) {
+      _showError('Please select Response Type');
+      return false;
+    }
+    
+    if (responseDate.value == null) {
+      _showError('Please select Response Date');
+      return false;
+    }
+    
+    if (responseTime.value == null) {
+      _showError('Please select Response Time');
+      return false;
+    }
+
+    return true;
+  }
+
+  /// Validate response details
+  bool _validateResponse() {
+    if (responseReason.value.trim().isEmpty) {
+      _showError('Please enter Reason for Response');
+      return false;
+    }
+    if (actionTaken.value.trim().isEmpty) {
+      _showError('Please enter Action Taken');
+      return false;
+    }
+    return true;
+  }
+
+  /// Validate current step using centralized validation
+  bool validateCurrentStep() {
+    switch (currentStep.value) {
+      case 0:
+        return _validateLocation();
+      case 1:
+        return _validateTiming();
+      case 2:
+        return _validateDetails();
+      case 3:
+        return _validateResponse();
+      case 4: // Review step - always valid
+        return true;
+      default:
+        return true;
+    }
+  }
+
+  /// Validate all form data before final submission
+  bool validateAndSubmit() {
+    final locationValid = _validateLocation();
+    final timingValid = _validateTiming();
+    final detailsValid = _validateDetails();
+    final responseValid = _validateResponse();
+
+    if (!locationValid || !timingValid || !detailsValid || !responseValid) {
+      _showError('Please fix validation errors before submitting');
+      return false;
+    }
+
+    return true;
+  }
+
+  // -------------------------------------------------------------------------
+  // 13. Media Picker
   // -------------------------------------------------------------------------
   Future<void> pickMedia() async {
     final picker = ImagePicker();
@@ -239,12 +433,7 @@ class StaffReportController extends GetxController {
 
       if (file == null) {
         hasAttachment.value = false;
-        Get.snackbar(
-          'Cancelled',
-          'No file selected.',
-          backgroundColor: Appcolors.accent,
-          colorText: Appcolors.background,
-        );
+        _showError('No file selected');
         return;
       }
 
@@ -256,157 +445,62 @@ class StaffReportController extends GetxController {
         selectedBytes.value = bytes;
       }
 
-      Get.snackbar(
-        'Success',
-        'Attachment added',
-        backgroundColor: Appcolors.primary,
-        colorText: Appcolors.background,
-      );
+      _showSuccess('Attachment added');
     } catch (e) {
       hasAttachment.value = false;
-      Get.snackbar(
-        'Error',
-        'Failed to pick image: $e',
-        backgroundColor: Appcolors.error,
-        colorText: Appcolors.background,
+      _showError('Failed to pick image: $e');
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // 14. Location Management for Flutter Map
+  // -------------------------------------------------------------------------
+  void updateMarker(LatLng position) {
+    if (position != null) {
+      isLocationSelelcted(true);
+      selectedLocation.value = position;
+    } else {
+      isLocationSelelcted(false);
+      selectedLocation.value = null;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // 15. Report Submission
+  // -------------------------------------------------------------------------
+  void _submitReport() {
+    try {
+      // Create report model with location data
+      final report = ReportModel(
+        region: selectedRegion.value ?? '',
+        woreda: selectedWoreda.value ?? '',
+        kebele: selectedKebele.value ?? '',
+        date: incidentDate.value?.toString() ?? '',
+        time: incidentTime.value?.format(Get.context!) ?? '',
+        description: description.value,
+        severity: selectedLevel.value ?? '',
+        imagePath: selectedFile.value?.path ?? '',
       );
+
+      // Save to local storage
+      _storageService.saveReport(report);
+
+      // Log the report data
+      _logReport();
+
+      // Show success dialog
+      showThankYouDialog();
+
+      // Reset form after successful submission
+      resetForm();
+
+    } catch (e) {
+      _showError('Failed to submit report: $e');
     }
   }
 
   // -------------------------------------------------------------------------
-  // 10. Validation helpers
-  // -------------------------------------------------------------------------
-  void _showError(String message) {
-    Get.snackbar(
-      'Missing Info',
-      message,
-      backgroundColor: Appcolors.error,
-      colorText: Appcolors.background,
-      snackPosition: SnackPosition.TOP,
-    );
-  }
-
-  bool _validateLocation() {
-    if (selectedRegion.value == null) {
-      _showError("Please select a Region/City");
-      return false;
-    }
-
-    final bool isSpecial =
-        selectedRegion.value == "Addis Ababa" ||
-        selectedRegion.value == "Dire Dawa";
-    final String? zoneOrSubCity = isSpecial
-        ? selectedSubCity.value
-        : selectedZone.value;
-
-    if (zoneOrSubCity == null) {
-      _showError("Please select ${isSpecial ? 'a Sub-City' : 'a Zone'}");
-      return false;
-    }
-
-    if (selectedWoreda.value == null) {
-      _showError("Please select a Woreda");
-      return false;
-    }
-    if (selectedKebele.value == null) {
-      _showError("Please select a Kebele");
-      return false;
-    }
-    return true;
-  }
-
-  bool _validateTiming() {
-    if (selectedIncidentType.value == null) {
-      _showError("Please select Incident Type");
-      return false;
-    }
-    if (incidentDate.value == null) {
-      _showError("Please select Incident Date");
-      return false;
-    }
-    if (incidentTime.value == null) {
-      _showError("Please select Incident Time");
-      return false;
-    }
-    if (selectedVictim.value == null) {
-      _showError("Please select Victim");
-      return false;
-    }
-    if (selectedCause.value == null) {
-      _showError("Please select Cause");
-      return false;
-    }
-    if (selectedLevel.value == null) {
-      _showError("Please select Incident Level");
-      return false;
-    }
-    if (selectedContext.value == null) {
-      _showError("Please select Incident Context");
-      return false;
-    }
-    return true;
-  }
-
-  bool _validateDetails() {
-    if (selectedResponseType.value == null) {
-      _showError("Please select Response Type");
-      return false;
-    }
-    if (responseDate.value == null) {
-      _showError("Please select Response Date");
-      return false;
-    }
-    if (responseTime.value == null) {
-      _showError("Please select Response Time");
-      return false;
-    }
-    return true;
-  }
-
-  bool _validateResponse() {
-    if (responseReason.value.trim().isEmpty) {
-      _showError("Please enter Reason for Response");
-      return false;
-    }
-    if (actionTaken.value.trim().isEmpty) {
-      _showError("Please enter Action Taken");
-      return false;
-    }
-    return true;
-  }
-
-  // -------------------------------------------------------------------------
-  // 11. Step-by-step validation
-  // -------------------------------------------------------------------------
-  bool validateCurrentStep() {
-    switch (currentStep.value) {
-      case 0:
-        return _validateLocation();
-      case 1:
-        return _validateTiming();
-      case 2:
-        return _validateDetails();
-      case 3:
-        return _validateResponse();
-      case 4: // Review – always valid
-        return true;
-      default:
-        return true;
-    }
-  }
-
-  // -------------------------------------------------------------------------
-  // 12. Final submission validation
-  // -------------------------------------------------------------------------
-  bool validateAndSubmit() {
-    return _validateLocation() &&
-        _validateTiming() &&
-        _validateDetails() &&
-        _validateResponse();
-  }
-
-  // -------------------------------------------------------------------------
-  // 13. Logging & UI helpers
+  // 16. Logging & UI helpers
   // -------------------------------------------------------------------------
   void _logReport() {
     final bool isSpecial =
@@ -435,6 +529,7 @@ class StaffReportController extends GetxController {
     debugPrint("Response Time: ${responseTime.value}");
     debugPrint("Response Reason: ${responseReason.value}");
     debugPrint("Action Taken: ${actionTaken.value}");
+    debugPrint("Location: ${selectedLocation.value?.latitude}, ${selectedLocation.value?.longitude}");
     debugPrint("===============================");
   }
 
@@ -503,7 +598,7 @@ class StaffReportController extends GetxController {
   }
 
   // -------------------------------------------------------------------------
-  // 14. Reset & Edit helpers
+  // 17. Reset & Edit helpers
   // -------------------------------------------------------------------------
   void returnToReview() {
     isInEditMode.value = false;
@@ -539,6 +634,10 @@ class StaffReportController extends GetxController {
     responseTime.value = null;
     responseReason.value = '';
     actionTaken.value = '';
+
+    // Location fields
+    selectedLocation.value = null;
+    isLocationSelelcted.value = false;
 
     // UI state
     currentStep.value = 0;

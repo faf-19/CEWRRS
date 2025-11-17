@@ -80,8 +80,7 @@ class IntroPage extends StatelessWidget {
 
                           Text(
                             "Conflict Early Warning System",
-                            style: AppTextStyles.heading,
-  
+                            style: AppTextStyles.heading.copyWith(fontSize: 18),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppConstants.sectionSpacing),
@@ -92,7 +91,7 @@ class IntroPage extends StatelessWidget {
                             bgColor: Appcolors.primary,
                             textColor: Appcolors.background,
                           ),
-                          const SizedBox(height: AppConstants.fieldSpacing),
+                          const SizedBox(height: 24),
                           _buildButton(
                             label: "Login",
                             onPressed: () => Get.toNamed("/login"),
@@ -143,8 +142,9 @@ class IntroPage extends StatelessWidget {
           label,
           style: TextStyle(
             color: textColor,
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
+            fontFamily: 'Montserrat',
           ),
         ),
       ),

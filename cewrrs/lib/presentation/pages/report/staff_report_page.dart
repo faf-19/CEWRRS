@@ -2,6 +2,7 @@ import 'package:cewrrs/core/config/app_constants.dart';
 import 'package:cewrrs/presentation/controllers/staff_report_controller.dart';
 import 'package:cewrrs/presentation/widgets/HorizontalStepper.dart';
 import 'package:cewrrs/presentation/controllers/home_controller.dart';
+import 'package:cewrrs/presentation/widgets/report_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../themes/colors.dart';
@@ -165,7 +166,11 @@ class _StaffReportPageState extends State<StaffReportPage> {
                           children: [
                             Text(
                               "Next",
-                              style: TextStyle(fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             SizedBox(width: 8),
                             Icon(
@@ -196,6 +201,8 @@ class _StaffReportPageState extends State<StaffReportPage> {
                             Text(
                               "Done",
                               style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 12,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -235,7 +242,11 @@ class _StaffReportPageState extends State<StaffReportPage> {
                               SizedBox(width: 8),
                               Text(
                                 "Back",
-                                style: TextStyle(fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ],
                           ),
@@ -281,9 +292,10 @@ class _StaffReportPageState extends State<StaffReportPage> {
                             Text(
                               currentStep < 4 ? "Next" : "Submit",
                               style: const TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 12,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
                               ),
                             ),
                             const SizedBox(width: 8),

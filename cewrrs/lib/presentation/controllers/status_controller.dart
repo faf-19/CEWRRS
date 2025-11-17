@@ -29,6 +29,8 @@ class Report {
 
 class StatusController extends GetxController {
   var reports = <Report>[].obs;
+  var selectedFilter = 'All'.obs;
+  var selectedCategory = 'All Categories'.obs;
 
   @override
   void onInit() {
@@ -40,27 +42,63 @@ class StatusController extends GetxController {
     reports.value = [
       Report(
         id: 'R001',
-        title: 'Water Leakage',
-        status: 'Pending',
-        assignedTo: 'Staff A',
-        date: '2025-10-30',
-        location: 'Zone 3',
+        title: 'Terrorism Incident',
+        status: 'pending',
+        assignedTo: 'Security Team Alpha',
+        date: '2025-11-15',
+        location: 'Downtown Addis Ababa',
         priority: 'High',
-        category: 'Plumbing',
-        resolution: 'Not yet resolved',
-        notes: 'Reported by resident near pipeline.',
+        category: 'Terrorism',
+        resolution: 'Investigation in progress',
+        notes: 'Suspicious activity reported near government building.',
       ),
       Report(
         id: 'R002',
-        title: 'Power Outage',
-        status: 'Resolved',
-        assignedTo: 'Staff B',
-        date: '2025-10-29',
-        location: 'Zone 1',
+        title: 'Clan Conflict',
+        status: 'in progress',
+        assignedTo: 'Peacekeeping Unit',
+        date: '2025-11-14',
+        location: 'Oromia Region',
+        priority: 'High',
+        category: 'Clan Clash',
+        resolution: 'Mediation talks ongoing',
+        notes: 'Inter-clan dispute over land rights.',
+      ),
+      Report(
+        id: 'R003',
+        title: 'Armed Movement Activity',
+        status: 'completed',
+        assignedTo: 'Military Intelligence',
+        date: '2025-11-13',
+        location: 'Northern Border',
+        priority: 'Critical',
+        category: 'Armed Movement',
+        resolution: 'Movement contained, area secured',
+        notes: 'Unauthorized armed group movement intercepted.',
+      ),
+      Report(
+        id: 'R004',
+        title: 'Political Violence',
+        status: 'pending',
+        assignedTo: 'Civil Protection Unit',
+        date: '2025-11-12',
+        location: 'Capital City Center',
         priority: 'Medium',
-        category: 'Electrical',
-        resolution: 'Transformer replaced',
-        notes: 'Issue resolved within 2 hours.',
+        category: 'Political Violence',
+        resolution: 'Under review',
+        notes: 'Protest turned violent near parliament.',
+      ),
+      Report(
+        id: 'R005',
+        title: 'Human Rights Violation',
+        status: 'in progress',
+        assignedTo: 'Human Rights Commission',
+        date: '2025-11-11',
+        location: 'Rural District',
+        priority: 'High',
+        category: 'Human Rights',
+        resolution: 'Investigation ongoing',
+        notes: 'Alleged rights violation reported.',
       ),
     ];
   }
@@ -113,7 +151,7 @@ class StatusController extends GetxController {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 18,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -178,11 +216,12 @@ class StatusController extends GetxController {
                       const Divider(height: 1),
                       const SizedBox(height: 16),
 
-                      const Text(
+                      Text(
                         'Resolution',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w700,
+                          color: const Color(0xFF0EA5E9),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -192,11 +231,12 @@ class StatusController extends GetxController {
                       ),
 
                       const SizedBox(height: 16),
-                      const Text(
+                      Text(
                         'Notes',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w700,
+                          color: const Color(0xFF0EA5E9),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -215,7 +255,7 @@ class StatusController extends GetxController {
                               label: const Text('Close'),
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
+                                  vertical: 10,
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -231,7 +271,7 @@ class StatusController extends GetxController {
                               label: const Text('Go to Map'),
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
+                                  vertical: 10,
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -259,15 +299,12 @@ class _StatusChip extends StatelessWidget {
 
   Color _colorForStatus(String value) {
     switch (value.toLowerCase()) {
-      case 'resolved':
-      case 'low':
-        return const Color(0xFF22C55E);
+      case 'completed':
+        return const Color(0xFF22C55E); // Green
+      case 'in progress':
+        return const Color(0xFF3B82F6); // Blue
       case 'pending':
-      case 'medium':
-        return const Color(0xFFF59E0B);
-      case 'high':
-      case 'critical':
-        return const Color(0xFFEF4444);
+        return const Color(0xFFF59E0B); // Orange
       default:
         return const Color(0xFF64748B);
     }
@@ -346,8 +383,8 @@ class _InfoTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
+                  style: const TextStyle(
+                    color: Color(0xFF0EA5E9),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -358,8 +395,9 @@ class _InfoTile extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
+                    color: Color(0xFF0EA5E9),
                   ),
                 ),
               ],
@@ -409,7 +447,7 @@ class _RichCard extends StatelessWidget {
           Expanded(
             child: Text(
               text.isEmpty ? '—' : text,
-              style: const TextStyle(fontSize: 13.5, height: 1.45),
+              style: const TextStyle(fontSize: 12, height: 1.45, color: Color(0xFF0EA5E9)),
             ),
           ),
         ],

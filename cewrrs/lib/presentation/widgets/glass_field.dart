@@ -42,6 +42,11 @@ class GlassField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
+          hintStyle: TextStyle(
+            fontSize: 14,
+            fontFamily: 'Montserrat',
+            color: Colors.grey,
+          ),
           suffixIcon: suffixIcon,
           prefix: prefixIcon,
           counterText: maxLength != null

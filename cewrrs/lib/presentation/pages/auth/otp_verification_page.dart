@@ -113,10 +113,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              const Icon(Icons.verified, color: Colors.white, size: 48),
+              const Icon(Icons.check_circle, color: Colors.white, size: 48),
               const SizedBox(height: 8),
               const Text(
-                "Your phone number has been successfully verified.",
+                "Report submitted successfully.\nThank you for your contribution.",
                 style: TextStyle(color: Colors.white, fontSize: 14),
                 textAlign: TextAlign.center,
               ),
@@ -129,7 +129,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         Get.back();
-        Get.offAllNamed('/quick-report');
+        Get.offAllNamed('/report');
       }
     });
   }
@@ -140,20 +140,20 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Appcolors.primary,
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_sharp,
-            color: Appcolors.textDark,
+            color: Appcolors.background,
           ),
           onPressed: () => Get.offAllNamed('/intro'),
         ),
         title: Text(
           "Quick Report",
           style: AppTextStyles.heading.copyWith(
-            color: Appcolors.textDark,
+            color: Appcolors.background,
             fontSize: 16,
           ),
         ),
@@ -201,7 +201,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     "We have sent a secure verification code to your phone number.\n"
                     "Please enter it below to continue.\n $_prettyPhone",
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 14),
                   ),
                   const SizedBox(height: 24),
 
@@ -279,7 +279,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   const Text(
                     "This code will expire 30 sec after this message. If you don't get a message.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12),
+                    style: TextStyle(fontSize: 10),
                   ),
 
                   const SizedBox(height: 24),

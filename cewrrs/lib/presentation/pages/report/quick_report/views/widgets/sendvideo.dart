@@ -13,18 +13,18 @@ import 'package:video_player/video_player.dart';
 
 class SendVideoWidget extends StatefulWidget {
   final QuuickReportController reportController;
-  final bool isSignLangauge;
+  final bool isSignLanguage;
   SendVideoWidget({
     Key? key,
     required this.reportController,
-    required this.isSignLangauge,
+    required this.isSignLanguage,
   }) : super(key: key);
 
   @override
-  _SendVideowidgetState createState() => _SendVideowidgetState();
+  _SendVideoWidgetState createState() => _SendVideoWidgetState();
 }
 
-class _SendVideowidgetState extends State<SendVideoWidget> {
+class _SendVideoWidgetState extends State<SendVideoWidget> {
   final picker = ImagePicker();
 
   Future<void> _getFromGallery() async {
@@ -32,7 +32,7 @@ class _SendVideowidgetState extends State<SendVideoWidget> {
     final List<XFile>? videos = await picker.pickMultipleMedia();
     if (videos != null) {
       for (var video in videos) {
-        await _processVideo(File(video.path), maxSizeInBytes);
+        await _processVideo(XFile(video.path), maxSizeInBytes);
       }
     }
   }
@@ -46,7 +46,7 @@ class _SendVideowidgetState extends State<SendVideoWidget> {
         maxDuration: const Duration(minutes: 2), // Limit to 2 minutes
       );
       if (video != null) {
-        await _processVideo(File(video.path), maxSizeInBytes);
+        await _processVideo(XFile(video.path), maxSizeInBytes);
       }
     } catch (e) {
       Get.snackbar(
@@ -57,7 +57,8 @@ class _SendVideowidgetState extends State<SendVideoWidget> {
   }
 
   // ────── Process Video ──────
-  Future<void> _processVideo(File file, int maxSizeInBytes) async {
+  Future<void> _processVideo(XFile xFile, int maxSizeInBytes) async {
+    final file = File(xFile.path);
     if (await file.exists()) {
       int fileSize = await file.length();
       if (fileSize > maxSizeInBytes) {
@@ -68,13 +69,13 @@ class _SendVideowidgetState extends State<SendVideoWidget> {
         return;
       }
       if (fileSize <= maxSizeInBytes) {
-        final videoType = await widget.reportController.getVideoType(file);
+        final videoType = await widget.reportController.getVideoType(xFile);
         if (videoType == VideoType.video) {
           setState(() {
-            if (!widget.isSignLangauge) {
-              widget.reportController.selectedVideos.add(file);
+            if (!widget.isSignLanguage) {
+              widget.reportController.selectedVideos.add(xFile);
             } else {
-              widget.reportController.selectedSignVideos.add(file);
+              widget.reportController.selectedSignVideos.add(xFile);
             }
           });
         } else {
@@ -87,7 +88,7 @@ class _SendVideowidgetState extends State<SendVideoWidget> {
   }
 
   void deleteVideo(int index) {
-    if (!widget.isSignLangauge) {
+    if (!widget.isSignLanguage) {
       widget.reportController.selectedVideos.removeAt(index);
     } else {
       widget.reportController.selectedSignVideos.removeAt(index);

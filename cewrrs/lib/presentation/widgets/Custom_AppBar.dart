@@ -14,8 +14,8 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
     final titles = [
       "Dashboard",
       "Report",
-      "Maps",
-      "status",
+      "Status",
+      "Settings",
       "Settings",
       "OTP Verification",
       "ReportView",
@@ -23,15 +23,15 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
 
     return Obx(
       () => AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Appcolors.primary,
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
         leading: controller.tabHistory.length <= 1
             ? null
             : IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new_sharp,
-                  color: Appcolors.textDark,
+                  color: Appcolors.background,
                 ),
                 onPressed: controller.goBackInTabFlow,
               ),
@@ -39,7 +39,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
         title: Text(
           titles[controller.selectedIndex.value],
           style: AppTextStyles.heading.copyWith(
-            color: Appcolors.textDark,
+            color: Appcolors.background,
             fontSize: 16,
           ),
         ),

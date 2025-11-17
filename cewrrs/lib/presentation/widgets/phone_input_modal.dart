@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../themes/colors.dart';
 import '../themes/text_style.dart';
 import 'otp_modal.dart';
@@ -7,11 +6,11 @@ import 'thank_you_modal.dart';
 
 class PhoneInputModal extends StatefulWidget {
   final VoidCallback? onClose;
-  
+
   const PhoneInputModal({
-    Key? key,
+    super.key,
     this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   State<PhoneInputModal> createState() => _PhoneInputModalState();
@@ -69,25 +68,31 @@ class _PhoneInputModalState extends State<PhoneInputModal> {
   }
 
   String _formatPhoneNumber(String phone) {
-    // Simple formatting for display
-    if (phone.length >= 10) {
-      return '+251 ${phone.substring(phone.length - 9, phone.length - 6)} ${phone.substring(phone.length - 6, phone.length - 3)} ${phone.substring(phone.length - 3)}';
+    // Format the 9-digit number with Ethiopian country code
+    if (phone.length == 9) {
+      return '+251 ${phone.substring(0, 3)} ${phone.substring(3, 6)} ${phone.substring(6)}';
     }
-    return phone;
+    return '+251 $phone';
   }
 
   String? _validatePhoneNumber(String? value) {
     if (value == null || value.isEmpty) {
       return 'Phone number is required';
     }
-    
+
     // Remove all non-digit characters for validation
     final digits = value.replaceAll(RegExp(r'\D'), '');
-    
-    if (digits.length < 10) {
-      return 'Please enter a valid phone number';
+
+    // Ethiopian phone numbers are 9 digits after +251
+    if (digits.length != 9) {
+      return 'Please enter a valid 9-digit Ethiopian phone number';
     }
-    
+
+    // Ethiopian mobile numbers typically start with 9, 7, or 8
+    if (!RegExp(r'^[789]').hasMatch(digits)) {
+      return 'Please enter a valid Ethiopian mobile number';
+    }
+
     return null;
   }
 
@@ -128,11 +133,12 @@ class _PhoneInputModalState extends State<PhoneInputModal> {
             
             // Instructions
             const Text(
-              'Please enter your phone number to receive a verification code.',
+              'Please enter your Ethiopian phone number to receive a verification code.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: Colors.grey,
+                fontFamily: 'Montserrat',
               ),
             ),
             
@@ -145,10 +151,18 @@ class _PhoneInputModalState extends State<PhoneInputModal> {
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.done,
+                maxLength: 9,
                 decoration: InputDecoration(
                   labelText: 'Phone Number',
-                  hintText: '+251912345678',
+                  hintText: '912345678',
+                  prefixText: '+251 ',
+                  prefixStyle: const TextStyle(
+                    color: Appcolors.primary,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Montserrat',
+                  ),
                   prefixIcon: const Icon(Icons.phone, color: Appcolors.primary),
+                  counterText: '',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Colors.grey),
@@ -164,6 +178,15 @@ class _PhoneInputModalState extends State<PhoneInputModal> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Colors.red),
                   ),
+                  labelStyle: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                  hintStyle: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    color: Colors.grey,
+                  ),
                 ),
                 validator: _validatePhoneNumber,
                 onFieldSubmitted: (_) => _submitPhoneNumber(),
@@ -174,8 +197,8 @@ class _PhoneInputModalState extends State<PhoneInputModal> {
             
             // Submit Button
             SizedBox(
-              width: double.infinity,
-              height: 48,
+              width: 200,
+              height: 50,
               child: ElevatedButton(
                 onPressed: _submitPhoneNumber,
                 style: ElevatedButton.styleFrom(
@@ -184,10 +207,12 @@ class _PhoneInputModalState extends State<PhoneInputModal> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Send Verification Code',
-                  style: AppTextStyles.button.copyWith(
+                  style: TextStyle(
+                    fontSize: 12,
                     color: Colors.white,
+                    fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -202,11 +227,13 @@ class _PhoneInputModalState extends State<PhoneInputModal> {
                 Navigator.of(context).pop();
                 widget.onClose?.call();
               },
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 14,
+                  color: Colors.grey,
+                  fontSize: 12,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),

@@ -6,8 +6,25 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:video_player/video_player.dart';
+
+enum MediaType { image, video, audio, file, link, unknown }
+enum VideoType { image, video, audio, unknown }
+
+// Simple Report class for now
+class Report {
+  final String id;
+  final String description;
+  final DateTime timestamp;
+  
+  Report({
+    required this.id,
+    required this.description,
+    required this.timestamp,
+  });
+}
 
 class QuuickReportController extends GetxController {
   final HomeController homeController = Get.put(HomeController());
@@ -18,244 +35,166 @@ class QuuickReportController extends GetxController {
   var tabIndex = 0.obs;
   var showAll = true.obs;
   var selectedDay = 1.obs;
-  var selectedMonth = 1.obs;
-  var selectedYear = DateTime.now().year.obs;
-  var selectedTime = TimeOfDay.now().obs;
-  var contactInfo = ''.obs;
 
-  List<String> ethiopianMonths = [
-    'መስከረም',
-    'ጥቅምት',
-    'ሕዳር',
-    'ታኅሣሥ',
-    'ጥር',
-    'የካቲት',
-    'መጋቢት',
-    'ሚያዝያ',
-    'ግንቦት',
-    'ሰኔ',
-    'ሐምሌ',
-    'ነሐሴ',
-    'ጳጉሜ'
-  ];
+  // Time and Media
+  Rx<TimeOfDay> selectedTime = TimeOfDay.now().obs;
+  var description = ''.obs;
 
-  Rx<DateTime> selectedDateTime = Rx<DateTime>(DateTime.now());
-  RxBool isDateSelelcted = RxBool(false);
+  // Location Management using latlong2
+  final Rxn<LatLng> selectedLocation = Rxn<LatLng>();
+  final RxBool isLocationSelelcted = false.obs;
 
-  late TextEditingController description;
-  RxBool isToggled = false.obs;
-  var isSendreport = false.obs;
-  var isLoading = false.obs;
-  bool isDraft = false;
-  late String phonenumberCr = "";
+  // Media Collections
+  final RxList<XFile> selectedImages = <XFile>[].obs;
+  final RxList<XFile> selectedVideos = <XFile>[].obs;
+  final RxList<XFile> selectedSignVideos = <XFile>[].obs;
+  final RxList<String> audioPaths = <String>[].obs;
+  final RxList<String> selectedLinks = <String>[].obs;
+  final RxList<File> selectedFiles = <File>[].obs;
 
-  // Reports list
-  // var reports = <Report>[].obs;
+  // Other form data
+  List selectedFile = [].obs;
+  List selectedFilePaths = [].obs;
+  var selectedFileName = ''.obs;
+  var selectedFileSize = ''.obs;
+  var base64String = ''.obs;
+  var fileExtension = ''.obs;
 
-  //send image
-  RxList<File> selectedImages = <File>[].obs;
+  // Video player
+  VideoPlayerController? videoFileController;
+  var videoUrl = ''.obs;
 
-  //Send video
-  RxList<File> selectedVideos = <File>[].obs;
+  var reportType = 'General'.obs;
 
-  RxList<File> selectedSignVideos = <File>[].obs;
-  RxList<VideoPlayerController> videoControllers =
-      <VideoPlayerController>[].obs;
+  var reportList = <Report>[].obs;
 
-  //send audio
-  RxList<String> audioPaths = <String>[].obs;
-
-  //Send link
-  RxList<String> selectedLinks = <String>[].obs;
-
-  //Send URL with categories
-  RxList<Map<String, String>> selectedUrls = <Map<String, String>>[].obs;
-
-  //send file
-  RxList<PlatformFile> selectedFile = <PlatformFile>[].obs;
-
-  //locations
-  double? latitude;
-  double? longitude;
   bool isGettingLocation = false;
   double? targetLatitude = 8.9889820;
   double? targetlongitude = 38.7703300;
-  Rx<LatLng> selectedLocation = LatLng(8.9889820, 38.7703300).obs;
-  RxBool isLocationSelelcted = RxBool(false);
 
   late TabController tabController;
 
   final count = 0.obs;
   var selectedFilter = "All".obs;
-  // var filteredReports = <Report>[].obs;
-  List<String> get filters => ["All", "PENDING", "ACCEPTED"];
 
-  @override
-  void onInit() {
-    description = TextEditingController();
-    // ever(reports, (_) => applyFilter(selectedFilter.value));
-    super.onInit();
+  // Media type detection
+  Future<VideoType> getVideoType(dynamic file) async {
+    if (file is File) {
+      final mimeType = lookupMimeType(file.path);
+      if (mimeType == null) return VideoType.unknown;
+      
+      if (mimeType.startsWith('image/')) return VideoType.image;
+      if (mimeType.startsWith('video/')) return VideoType.video;
+      if (mimeType.startsWith('audio/')) return VideoType.audio;
+      
+      return VideoType.unknown;
+    }
+    return VideoType.unknown;
   }
 
-  // void applyFilter(String filter) {
-  //   selectedFilter.value = filter;
-
-  //   if (filter == "All") {
-  //     filteredReports.assignAll(reports);
-  //   } else {
-  //     filteredReports.assignAll(reports
-  //         .where(
-  //             (report) => report.status.toUpperCase() == filter.toUpperCase())
-  //         .toList());
-  //   }
-  // }
-
   void updateMarker(LatLng position) {
-    if (position != null) {
-      isLocationSelelcted(true);
-      selectedLocation.value = position;
-      //for the backend
-      latitude = position.latitude;
-      longitude = position.longitude;
-      //save the lataes position
-      targetLatitude = position.latitude;
-      targetlongitude = position.longitude;
-    } else {
-      isLocationSelelcted(false);
-    }
+    isLocationSelelcted(true);
+    selectedLocation.value = position;
+    //for the backend
+    targetLatitude = position.latitude;
+    targetlongitude = position.longitude;
+    //save the latest position
+    targetLatitude = position.latitude;
+    targetlongitude = position.longitude;
   }
 
   void changeTabIndex(int index) {
     tabIndex.value = index;
   }
 
-  // Submit report method
-  // Update the submitReport method in your ReportController
-//   Future<void> submitReport() async {
-//     if (!descriptionformKey.currentState!.validate()) {
-//       Get.snackbar('Error', 'Please fill all required fields');
-//       return;
-//     }
+  // Add media methods
+  void addImage(XFile image) {
+    if (selectedImages.length < 5) {
+      selectedImages.add(image);
+    }
+  }
 
-//     if (!isLocationSelelcted.value) {
-//       Get.snackbar('Error', 'Please select a location');
-//       return;
-//     }
+  void removeImage(int index) {
+    if (index >= 0 && index < selectedImages.length) {
+      selectedImages.removeAt(index);
+    }
+  }
 
-//     if (!isDateSelelcted.value) {
-//       Get.snackbar('Error', 'Please select incident time');
-//       return;
-//     }
+  void addVideo(XFile video, {bool isSignVideo = false}) {
+    if (isSignVideo) {
+      selectedSignVideos.add(video);
+    } else {
+      selectedVideos.add(video);
+    }
+  }
 
-//     // Validate that we
+  void removeVideo(int index, {bool isSignVideo = false}) {
+    if (isSignVideo) {
+      if (index >= 0 && index < selectedSignVideos.length) {
+        selectedSignVideos.removeAt(index);
+      }
+    } else {
+      if (index >= 0 && index < selectedVideos.length) {
+        selectedVideos.removeAt(index);
+      }
+    }
+  }
 
-//     if (latitude == null || longitude == null) {
-//       Get.snackbar('Error', 'Location data is missing');
-//       return;
-//     }
+  void addAudio(String audioPath) {
+    audioPaths.add(audioPath);
+  }
 
-//     try {
-//       isSendreport(true);
-//       isLoading(true);
+  void removeAudio(int index) {
+    if (index >= 0 && index < audioPaths.length) {
+      audioPaths.removeAt(index);
+    }
+  }
 
-//       // Create report request WITHOUT attachments
-//       final reportRequest = CreateReportRequest(
-//         latitude: latitude!,
-//         longitude: longitude!,
-//         // phoneNumber: homeController.userPhoneNo.value,
-//         phoneNumber: '0910111213',
-//         description: description.text.isNotEmpty ? description.text : null,
-//         incidentTime: selectedDateTime.value,
-//       );
+  void addLink(String link) {
+    selectedLinks.add(link);
+  }
 
-//       print('Submitting report: ${reportRequest.toJson()}'); // Debug log
+  void removeLink(int index) {
+    if (index >= 0 && index < selectedLinks.length) {
+      selectedLinks.removeAt(index);
+    }
+  }
 
-//       // Send to API
-//       final newReport = await reportService.createReport(reportRequest);
+  void addFile(File file) {
+    selectedFiles.add(file);
+  }
 
-//       Get.snackbar('Success', 'Report submitted successfully',
-//           backgroundColor: AppColors.success,
-//           snackPosition: SnackPosition.BOTTOM);
+  void removeFile(int index) {
+    if (index >= 0 && index < selectedFiles.length) {
+      selectedFiles.removeAt(index);
+    }
+  }
 
-//       // Clear form
-//       clearForm();
-//       await getReports();
-//       // Optionally navigate to reports list
-//       Get.to(() => ReportsListView());
-//     } catch (e) {
-//       print('Error submitting report: $e'); // Debug log
-//       Get.snackbar('Error', 'Failed to submit report: $e');
-//     } finally {
-//       isSendreport(false);
-//       isLoading(false);
-//     }
-//   }
-
-//   // Get all reports
-// // Update the getReports method in your ReportController
-//   Future<void> getReports() async {
-//     try {
-//       isLoading(true);
-//       print('Fetching reports...'); // Debug log
-//       final reportsList = await reportService.getReports();
-//       reports.assignAll(reportsList);
-//        applyFilter(selectedFilter.value);
-//       print('Fetched ${reportsList.length} reports'); // Debug log
-//     } catch (e) {
-//       print('Error fetching reports: $e'); // Debug log
-//       Get.snackbar(
-//         'Error',
-//         'Failed to load reports: $e',
-//         snackPosition: SnackPosition.BOTTOM,
-//       );
-//     } finally {
-//       isLoading(false);
-//     }
-//   }
-
-  // Clear form method
-  void clearForm() {
-    description.clear();
+  // Clear all data
+  void clearAllData() {
     selectedImages.clear();
     selectedVideos.clear();
     selectedSignVideos.clear();
+    audioPaths.clear();
     selectedLinks.clear();
-    selectedUrls.clear();
+    selectedFiles.clear();
     selectedFile.clear();
+    selectedFilePaths.clear();
+    selectedFileName.value = '';
+    selectedFileSize.value = '';
+    base64String.value = '';
+    fileExtension.value = '';
+    selectedLocation.value = null;
     isLocationSelelcted(false);
-    isDateSelelcted(false);
-    selectedDateTime.value = DateTime.now();
   }
 
-  Future<ImageType> getImageType(File file) async {
-    final String? mimeType = lookupMimeType(file.path);
-
-    if (mimeType != null && mimeType.startsWith('image/')) {
-      return ImageType.image;
-    }
-
-    if (mimeType != null && mimeType.startsWith('video/')) {
-      return ImageType.video;
-    }
-
-    return ImageType.video;
+  // Get all reports
+  void getAllReports() {
+    // Implementation for getting all reports
   }
 
-  Future<VideoType> getVideoType(File file) async {
-    final String? mimeType = lookupMimeType(file.path);
-
-    if (mimeType != null && mimeType.startsWith('video/')) {
-      return VideoType.video;
-    }
-
-    if (mimeType != null && mimeType.startsWith('audio/')) {
-      return VideoType.audio;
-    }
-
-    return VideoType.unknown;
+  // Get filtered reports
+  void getFilteredReports() {
+    // Implementation for filtered reports
   }
 }
-
-enum ImageType { image, video }
-
-enum VideoType { video, image, audio, unknown }

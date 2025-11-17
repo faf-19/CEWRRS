@@ -44,7 +44,7 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget> {
         imageQuality: 85,
       );
       if (image != null) {
-        await _validateAndAdd(File(image.path));
+        await _validateAndAdd(image);
       }
     } catch (e) {
       _snack('Camera Error', 'Failed to capture image: $e');
@@ -62,7 +62,7 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget> {
       );
       if (images != null && images.isNotEmpty) {
         for (var img in images) {
-          await _validateAndAdd(File(img.path));
+          await _validateAndAdd(img);
         }
       }
     } catch (e) {
@@ -71,92 +71,101 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget> {
   }
 
   // ────── Validate & Add Image ──────
-  Future<void> _validateAndAdd(File file) async {
+  Future<void> _validateAndAdd(XFile imageFile) async {
     const maxSize = 20 * 1024 * 1024; // 20 MB
-    final exists = await file.exists();
-    final size = exists ? file.lengthSync() : 0;
+    
+    try {
+      final file = File(imageFile.path);
+      final exists = await file.exists();
+      final size = exists ? file.lengthSync() : 0;
 
-    if (!exists || size == 0) {
-      _snack('Oops!', 'File is empty or corrupted.');
-      return;
-    }
-    if (size > maxSize) {
-      _snack('Too Big!', 'Image must be < 20 MB.');
-      return;
-    }
+      if (!exists || size == 0) {
+        _snack('Oops!', 'File is empty or corrupted.');
+        return;
+      }
+      if (size > maxSize) {
+        _snack('Too Big!', 'Image must be < 20 MB.');
+        return;
+      }
 
-    // NOTE: Mocking getImageType call to ensure compilation. 
-    // In a real app, you would use:
-    // final type = await widget.reportController.getImageType(file);
-    const type = ImageType.image; 
+      // Validate image type using the controller's method
+      final type = await widget.reportController.getVideoType(imageFile);
 
-    if (type != ImageType.image) {
-      _snack('Invalid!', 'Please select a photo.');
-      return;
-    }
+      if (type != VideoType.image) {
+        _snack('Invalid!', 'Please select a photo.');
+        return;
+      }
 
-    if (widget.reportController.selectedImages.length >= 5) {
-      _snack('Limit Reached', 'You can only add 5 photos.');
-      return;
-    }
+      if (widget.reportController.selectedImages.length >= 5) {
+        _snack('Limit Reached', 'You can only add 5 photos.');
+        return;
+      }
 
-    if (!widget.reportController.selectedImages.contains(file)) {
       setState(() {
-        widget.reportController.selectedImages.add(file);
+        widget.reportController.selectedImages.add(imageFile);
       });
-      _snack('Added!', 'Photo added!', color: Colors.green);
-    }
-  }
 
-  void _snack(String title, String message, {Color? color}) {
-    Get.snackbar(
-      title,
-      message,
-      backgroundColor: (color ?? Colors.red).withOpacity(0.1),
-      colorText: color ?? Colors.red.shade900,
-      duration: const Duration(seconds: 2),
-      margin: const EdgeInsets.all(12),
-      borderRadius: 12,
-    );
+      _snack('Success!', 'Photo added successfully.');
+    } catch (e) {
+      _snack('Error', 'Failed to validate image: $e');
+    }
   }
 
   void _delete(int index) {
     setState(() {
       widget.reportController.selectedImages.removeAt(index);
     });
+    _snack('Deleted', 'Photo removed.');
   }
 
-  void _showPreview(File file, int index) {
+  void _snack(String title, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$title: $message'),
+        backgroundColor: Colors.black87,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  void _showPreview(File image, int index) {
     showDialog(
       context: context,
-      builder: (_) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(20),
-        child: Stack(
-          children: [
-            Center(
-              child: InteractiveViewer(
-                child: Hero(
-                  tag: 'photo_$index',
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.file(file, fit: BoxFit.contain),
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.file(image, fit: BoxFit.contain),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _delete(index);
+                    },
+                    icon: const Icon(Icons.delete, size: 18),
+                    label: const Text('Delete'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                    ),
                   ),
-                ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Close'),
+                  ),
+                ],
               ),
-            ),
-            Positioned(
-              top: 10,
-              right: 10,
-              child: FloatingActionButton.small(
-                backgroundColor: Appcolors.primary,
-                onPressed: () => Navigator.pop(context),
-                child: const Icon(Icons.close, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -164,88 +173,28 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // Action button for adding photos
-          _actionButton(
-            icon: Iconsax.camera,
-            label: 'Add Photos'.tr,
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (_) => UploadDialog(
-                  title: 'Add Photos'.tr,
-                  contentTexts: [
-                    'Take photo with camera'.tr,
-                    'Choose from gallery'.tr,
-                    'Up to 5 photos'.tr,
-                    'Max 20 MB each'.tr,
-                  ],
-                  showCameraOptions: true,
-                  onCamera: _pickFromCamera,
-                  onGallery: _pickFromGallery,
-                ),
-              );
-            },
-            color: Colors.blue.shade50,
-            iconColor: Colors.blue.shade700,
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // Photo preview grid for selected images
-          if (widget.reportController.selectedImages.isNotEmpty)
-            Container(
-              height: 150, // Reduced height
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 6,
-                  mainAxisSpacing: 6,
-                  childAspectRatio: 1,
-                ),
-                itemCount: widget.reportController.selectedImages.length,
-                itemBuilder: (context, index) {
-                  final image = widget.reportController.selectedImages[index];
-                  return GestureDetector(
-                    onTap: () => _showPreview(image, index),
-                    child: Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            image,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                          ),
-                        ),
-                        // Delete button
-                        Positioned(
-                          top: 2,
-                          right: 2,
-                          child: GestureDetector(
-                            onTap: () => _delete(index),
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.black54,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                size: 12,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+      child: _actionButton(
+        icon: Iconsax.camera,
+        label: 'Add Photos',
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (_) => UploadDialog(
+              title: 'Add Photos',
+              contentTexts: [
+                'Take photo with camera',
+                'Choose from gallery',
+                'Up to 5 photos',
+                'Max 20 MB each',
+              ],
+              showCameraOptions: true,
+              onCamera: _pickFromCamera,
+              onGallery: _pickFromGallery,
             ),
-        ],
+          );
+        },
+        color: Colors.blue.shade50,
+        iconColor: Colors.blue.shade700,
       ),
     );
   }
@@ -281,10 +230,12 @@ class _SendPhotoWidgetState extends State<SendPhotoWidget> {
             const SizedBox(height: 6),
             Text(
               label,
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+              style: TextStyle(
+    fontFamily: 'Montserrat',
+    
                 color: iconColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
             ),

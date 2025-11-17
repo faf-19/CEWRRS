@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../themes/colors.dart';
 import '../themes/text_style.dart';
+import 'thank_you_modal.dart';
 
 class OtpModal extends StatefulWidget {
   final String phoneNumber;
@@ -21,6 +22,7 @@ class OtpModal extends StatefulWidget {
 class _OtpModalState extends State<OtpModal> {
   final List<TextEditingController> _controllers = List.generate(4, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
+  bool _remainAnonymous = false;
   
   @override
   void initState() {
@@ -47,8 +49,26 @@ class _OtpModalState extends State<OtpModal> {
 
   void _verifyOtp() {
     if (_otpCode.length == 4) {
-      widget.onVerify(_otpCode);
+      // Close OTP modal
+      Navigator.of(context).pop();
+
+      // Show thank you modal
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _showThankYouModal();
+      });
     }
+  }
+
+  void _showThankYouModal() {
+    Get.dialog(
+      ThankYouModal(
+        onClose: () {
+          // Return to report view
+          Get.back();
+        },
+      ),
+      barrierDismissible: false,
+    );
   }
 
   void _onCodeChanged(int index, String value) {
@@ -108,8 +128,9 @@ class _OtpModalState extends State<OtpModal> {
               'We sent a code to\n${widget.phoneNumber}',
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: Colors.grey,
+                fontFamily: 'Montserrat',
               ),
             ),
             
@@ -154,23 +175,39 @@ class _OtpModalState extends State<OtpModal> {
                 );
               }),
             ),
-            
+
             const SizedBox(height: 16),
-            
-            // Mock OTP display (for testing)
+
+            // Anonymous Toggle
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade200),
               ),
-              child: Text(
-                'Mock OTP for testing: $_mockOtp',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.amber,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Send report anonymously',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Montserrat',
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                  Switch(
+                    value: _remainAnonymous,
+                    onChanged: (value) {
+                      setState(() {
+                        _remainAnonymous = value;
+                      });
+                    },
+                    activeColor: Appcolors.primary,
+                  ),
+                ],
               ),
             ),
             
@@ -188,10 +225,12 @@ class _OtpModalState extends State<OtpModal> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Verify Code',
-                  style: AppTextStyles.button.copyWith(
+                  style: TextStyle(
+                    fontSize: 12,
                     color: Colors.white,
+                    fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600,
                   ),
                 ),

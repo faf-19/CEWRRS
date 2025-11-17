@@ -29,9 +29,10 @@ class StepTiming extends StatelessWidget {
                   Text(
                     "Incident Timing",
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Appcolors.primary,
+                      fontFamily: 'Montserrat',
                     ),
                   ),
                 ],
@@ -40,9 +41,10 @@ class StepTiming extends StatelessWidget {
               Text(
                 "Please provide the exact location where the incident occurred. ",
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   color: Colors.grey[700],
                   height: 1.5,
+                  fontFamily: 'Montserrat',
                 ),
               ),
             ],
@@ -92,7 +94,7 @@ class StepTiming extends StatelessWidget {
     return Obx(() {
       return DropdownButtonFormField<String>(
         value: selected.value,
-        //   hint: Text("select $label"),
+        hint: Text("Select $label", style: TextStyle(fontFamily: 'Montserrat', fontSize: 12, color: Appcolors.primary)),
         decoration: InputDecoration(
           labelText: label,
           filled: true,
@@ -100,7 +102,7 @@ class StepTiming extends StatelessWidget {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
         items: items
-            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontFamily: 'Montserrat', fontSize: 12))))
             .toList(),
         onChanged: (v) => selected.value = v,
       );
@@ -130,7 +132,7 @@ class StepTiming extends StatelessWidget {
             selected.value != null
                 ? "${selected.value!.toLocal()}".split(' ')[0]
                 : "Select Date",
-            style: const TextStyle(fontSize: 14),
+            style: const TextStyle(fontFamily: 'Montserrat', fontSize: 12),
           ),
         ),
       );
@@ -158,7 +160,7 @@ class StepTiming extends StatelessWidget {
             selected.value != null
                 ? selected.value!.format(Get.context!)
                 : "Select Time",
-            style: const TextStyle(fontSize: 14),
+            style: const TextStyle(fontFamily: 'Montserrat', fontSize: 12),
           ),
         ),
       );

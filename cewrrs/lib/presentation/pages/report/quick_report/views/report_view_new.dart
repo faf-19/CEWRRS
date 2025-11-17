@@ -8,6 +8,7 @@ import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/send
 import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/sendaudio.dart';
 import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/sendfile.dart';
 import 'package:cewrrs/presentation/pages/report/quick_report/views/widgets/sendlink.dart';
+import 'package:cewrrs/presentation/widgets/report_app_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart' as location_pkg;
@@ -54,18 +55,6 @@ class _ReportViewState extends State<ReportView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        title: Text(
-          'Quick Report',
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        elevation: 0,
-      ),
       backgroundColor: Colors.grey.shade100,
       body: SafeArea(
         child: Padding(
@@ -85,7 +74,7 @@ class _ReportViewState extends State<ReportView>
                   controller: tabController,
                   children: [
                     SendPhotoWidget(reportController: reportController),
-                    SendVideoWidget(reportController: reportController, isSignLangauge: widget.isSign),
+                    SendVideoWidget(reportController: reportController, isSignLanguage: widget.isSign),
                     SendaudioWidget(reportController: reportController),
                     SendFileWidget(reportController: reportController),
                     SendLinkWidget(reportController: reportController),
@@ -171,7 +160,9 @@ class _ReportViewState extends State<ReportView>
             const SizedBox(height: 2),
             Text(
               label,
-              style: GoogleFonts.poppins(
+              style: TextStyle(
+    fontFamily: 'Montserrat',
+    
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 color: isSelected 
@@ -200,7 +191,9 @@ class _ReportViewState extends State<ReportView>
                 const SizedBox(width: 8),
                 Text(
                   'Description',
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
+    fontFamily: 'Montserrat',
+    
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -244,7 +237,9 @@ class _ReportViewState extends State<ReportView>
                 const SizedBox(width: 8),
                 Text(
                   'Incident',
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
+    fontFamily: 'Montserrat',
+    
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -285,7 +280,9 @@ class _ReportViewState extends State<ReportView>
             const SizedBox(width: 8),
             Text(
               selectedTimeText,
-              style: GoogleFonts.poppins(
+              style: TextStyle(
+    fontFamily: 'Montserrat',
+    
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
               ),
@@ -313,7 +310,9 @@ class _ReportViewState extends State<ReportView>
             Expanded(
               child: Text(
                 selectedPlaceText,
-                style: GoogleFonts.poppins(
+                style: TextStyle(
+    fontFamily: 'Montserrat',
+    
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
@@ -336,7 +335,9 @@ class _ReportViewState extends State<ReportView>
         icon: const Icon(Icons.send, size: 18),
         label: Text(
           'Submit Report',
-          style: GoogleFonts.poppins(
+          style: TextStyle(
+    fontFamily: 'Montserrat',
+    
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -403,13 +404,8 @@ class _ReportViewState extends State<ReportView>
   }
 
   void _submitReport() {
-    // TODO: Implement report submission logic
-    Get.snackbar(
-      'Success',
-      'Report submitted successfully!',
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
+    // Navigate to phone input for verification before submission
+    Get.toNamed('/phone');
   }
 }
 
@@ -434,14 +430,18 @@ class _MapSelectionDialogState extends State<_MapSelectionDialog> {
       appBar: AppBar(
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
-        title: Text('Select Location', style: GoogleFonts.poppins()),
+        title: Text('Select Location', style: TextStyle(
+    fontFamily: 'Montserrat',
+    )),
         actions: [
           if (selectedPosition != null)
             TextButton(
               onPressed: () => _confirmSelection(),
               child: Text(
                 'Confirm',
-                style: GoogleFonts.poppins(
+                style: TextStyle(
+    fontFamily: 'Montserrat',
+    
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
@@ -458,7 +458,9 @@ class _MapSelectionDialogState extends State<_MapSelectionDialog> {
             color: Colors.grey.shade100,
             child: Text(
               selectedAddress,
-              style: GoogleFonts.poppins(
+              style: TextStyle(
+    fontFamily: 'Montserrat',
+    
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -497,7 +499,9 @@ class _MapSelectionDialogState extends State<_MapSelectionDialog> {
                 const SizedBox(height: 8),
                 Text(
                   'Tap on the map to select the incident location',
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
+    fontFamily: 'Montserrat',
+    
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),

@@ -1,5 +1,7 @@
 import 'package:cewrrs/core/config/app_constants.dart';
 import 'package:cewrrs/presentation/themes/text_style.dart';
+import 'package:cewrrs/data/models/user_model.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -7,290 +9,245 @@ import 'package:cewrrs/presentation/controllers/login_controller.dart';
 import 'package:cewrrs/presentation/themes/colors.dart';
 
 class LoginPage extends GetView<LoginController> {
-  // Helper method to build credential rows
-  Widget _buildCredentialRow(String phone, String password) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            phone,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade800,
-              fontFamily: "Montserrat",
-            ),
-          ),
-          Text(
-            password,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade800,
-              fontFamily: "Montserrat",
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    // final screenWidth = size.width;
-    final screenHeight = size.height; // <-- This is your variable
-
-    // Define a reusable input border for a consistent look
-    final inputBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide.none,
-    );
+    final screenHeight = size.height;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Appcolors.primary,
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_sharp,
-            color: Appcolors.textDark,
+            color: Appcolors.background,
           ),
-          onPressed: () => Get.offAllNamed('/intro'), // ✅ Always go to home
+          onPressed: () => Get.offAllNamed('/intro'),
         ),
         title: Text(
-          "",
+          "Login",
           style: AppTextStyles.heading.copyWith(
-            color: Appcolors.primary,
+            color: Appcolors.background,
             fontSize: 16,
-            fontFamily: "Montserrat",
           ),
         ),
-        // actions: [ ... ],
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Image.asset('assets/images/logo.png', width: 32, height: 32),
+          ),
+        ],
       ),
-      backgroundColor: Appcolors.background,
-      body: Container(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppConstants.horizontalPadding,
-              vertical: AppConstants.verticalPadding,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // 🛑 FIX APPLIED HERE:
-                // 1. Changed 'ScreenHeight' to 'screenHeight'.
-                // 2. Removed 'const' keyword.
-                SizedBox(
-                  height: screenHeight * 0.07,
-                ), // Adjusted height to 15% to avoid large blank space
-                // and prevent potential overflow on smaller screens.
-
-                // Logo
-                Center(
-                  child: Image.asset('assets/images/logo.png', height: 80),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(height: screenHeight * 0.05),
+              Text(
+                "WELCOME BACK",
+                textAlign: TextAlign.center,
+                style: AppTextStyles.heading.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                  fontSize: 16,
                 ),
-                const SizedBox(height: 22),
-
-                // Header
-                Text(
-                  "Welcome Back",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Appcolors.primary,
-                    fontFamily: "Montserrat",
-                  ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Sign in to your account",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                  fontFamily: 'Montserrat',
                 ),
-                const SizedBox(height: 22),
-                Text(
-                  "Sign in to your account",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Appcolors.textLight,
-                    fontFamily: "Montserrat",
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // Email (Phone Number)
-                TextField(
-                  controller: controller.phoneController,
-                  maxLength: 10,
-                  keyboardType: TextInputType.phone,
-                  textInputAction: TextInputAction.next,
-                  style: const TextStyle(fontSize: 16),
-                  decoration: InputDecoration(
-                    hintText: "phone Number",
-                    prefixIcon: const Icon(Icons.phone),
-                    counterText: '', // Hide character counter
-                    // Use a filled decoration for visibility since borderSide is none
-                    filled: true,
-                    fillColor: Appcolors
-                        .fieldFill, // Assuming you have a light color for field fill
-                    border: inputBorder,
-                    enabledBorder: inputBorder,
-                    focusedBorder: inputBorder.copyWith(
-                      borderSide: BorderSide(
-                        color: Appcolors.primary,
-                        width: 2.0,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Password
-                Obx(
-                  () => TextField(
-                    controller: controller.passwordController,
-                    obscureText: !controller.isPasswordVisible.value,
-                    textInputAction: TextInputAction.done,
-                    onSubmitted: (_) {
-                      // Submit when Enter is pressed if form is valid
-                      if (controller.isFormValid.value &&
-                          !controller.isLoading.value) {
-                        controller.login();
-                      }
-                    },
-                    decoration: InputDecoration(
-                      hintText: "Password",
-                      prefixIcon: Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          controller.isPasswordVisible.value
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
-                        onPressed: () {
-                          controller.isPasswordVisible.value =
-                              !controller.isPasswordVisible.value;
-                        },
-                      ),
-                      // Use a filled decoration for visibility since borderSide is none
-                      filled: true,
-                      fillColor: Appcolors.fieldFill,
-                      border: inputBorder,
-                      enabledBorder: inputBorder,
-                      focusedBorder: inputBorder.copyWith(
-                        borderSide: BorderSide(
-                          color: Appcolors.primary,
-                          width: 2.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Test Credentials
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+              ),
+              const SizedBox(height: 32),
+              Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.85,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Test Credentials",
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          fontFamily: "Montserrat",
-                        ),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
                       ),
-                      const SizedBox(height: 8),
-                      _buildCredentialRow("+251911111111", "password123"),
-                      const SizedBox(height: 4),
-                      _buildCredentialRow("+251922334455", "secret456"),
-                      const SizedBox(height: 4),
-                      _buildCredentialRow("+251912121212", "password1212"),
                     ],
                   ),
-                ),
-                
-                const SizedBox(height: 24),
-
-                // Login Button
-                Obx(
-                  () => controller.isLoading.value
-                      ? const Center(child: CircularProgressIndicator())
-                      : SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed:
-                                controller.isFormValid.value &&
-                                    !controller.isLoading.value
-                                ? () {
-                                    controller.login();
-                                  }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: controller.isFormValid.value
-                                  ? Appcolors.primary
-                                  : Colors.grey.shade400,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              elevation: controller.isFormValid.value ? 3 : 0,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: controller.phoneController,
+                        maxLength: 10,
+                        keyboardType: TextInputType.phone,
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(
+                          hintText: "0912345678",
+                          hintStyle: TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'Montserrat',
+                            color: Colors.grey,
+                          ),
+                          prefixIcon: const Icon(Icons.phone, color: Colors.blue),
+                          counterText: '',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: Colors.grey),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: Colors.blue),
+                          ),
+                        ),
+                        style: const TextStyle(fontFamily: 'Montserrat'),
+                      ),
+                      const SizedBox(height: 16),
+                      Obx(
+                        () => TextField(
+                          controller: controller.passwordController,
+                          obscureText: !controller.isPasswordVisible.value,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) {
+                            if (controller.isFormValid.value &&
+                                !controller.isLoading.value) {
+                              controller.login();
+                            }
+                          },
+                          decoration: InputDecoration(
+                            hintText: "Password",
+                            hintStyle: TextStyle(
+                              fontSize: 14,
+                              fontFamily: 'Montserrat',
+                              color: Colors.grey,
                             ),
-                            child: const Text(
-                              "Sign in",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
+                            prefixIcon: const Icon(Icons.lock, color: Colors.blue),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                controller.isPasswordVisible.value
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: Colors.blue,
                               ),
+                              onPressed: () {
+                                controller.isPasswordVisible.value =
+                                    !controller.isPasswordVisible.value;
+                              },
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(color: Colors.grey),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(color: Colors.blue),
+                            ),
+                          ),
+                          style: const TextStyle(fontFamily: 'Montserrat'),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Obx(
+                        () => controller.isLoading.value
+                            ? const Center(child: CircularProgressIndicator())
+                            : SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed:
+                                      controller.isFormValid.value &&
+                                          !controller.isLoading.value
+                                      ? () {
+                                          controller.login();
+                                        }
+                                      : null,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: controller.isFormValid.value
+                                        ? Colors.blue
+                                        : Colors.grey.shade400,
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    "Sign In",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
+                                ),
+                              ),
+                      ),
+                      const SizedBox(height: 16),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            "Forgot Password?",
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontSize: 12,
+                              fontFamily: 'Montserrat',
                             ),
                           ),
                         ),
-                ),
-                const SizedBox(height: 16),
-
-                // Forgot Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      "Forgot Password?",
-                      style: TextStyle(color: Appcolors.primary),
-                    ),
+                      ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: RichText(
+                          text: TextSpan(
+                            text: "If you don't have an account, ",
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontSize: 12,
+                              fontFamily: 'Montserrat',
+                            ),
+                            children: [
+                              TextSpan(
+                                text: "sign up here",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                  fontSize: 14,
+                                  fontFamily: 'Montserrat',
+                                ),
+                                recognizer: TapGestureRecognizer()..onTap = () => Get.toNamed('/register'),
+                              ),
+                              TextSpan(
+                                text: "!",
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 12,
+                                  fontFamily: 'Montserrat',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-
-                const SizedBox(height: 24),
-
-                // Sign Up Link (usually placed here)
-                Align(
-                  alignment: Alignment.center,
-                  child: TextButton(
-                    onPressed: () => Get.toNamed('/register'),
-                    child: const Text(
-                      "Create Account",
-                      style: TextStyle(color: Appcolors.primary),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+              SizedBox(height: screenHeight * 0.1),
+            ],
           ),
         ),
       ),
     );
   }
 }
+

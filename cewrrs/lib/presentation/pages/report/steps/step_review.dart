@@ -130,9 +130,10 @@ class StepReview extends StatelessWidget {
               child: Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: Appcolors.textDark,
+                  fontFamily: 'Montserrat',
                 ),
               ),
             ),
@@ -180,8 +181,9 @@ class StepReview extends StatelessWidget {
               "$label:",
               style: const TextStyle(
                 fontWeight: FontWeight.w500,
-                fontSize: 14,
+                fontSize: 12,
                 color: Appcolors.textDark,
+                fontFamily: 'Montserrat',
               ),
             ),
           ),
@@ -189,7 +191,7 @@ class StepReview extends StatelessWidget {
             flex: 3,
             child: Text(
               value?.isNotEmpty == true ? value! : "—",
-              style: const TextStyle(fontSize: 14, color: Appcolors.textDark),
+              style: const TextStyle(fontSize: 12, color: Appcolors.textDark, fontFamily: 'Montserrat'),
             ),
           ),
         ],
@@ -220,8 +222,9 @@ class StepReview extends StatelessWidget {
                 "$label:",
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 14,
+                  fontSize: 12,
                   color: Appcolors.textDark,
+                  fontFamily: 'Montserrat',
                 ),
               ),
             ),
@@ -235,8 +238,9 @@ class StepReview extends StatelessWidget {
                     maxLines: isExpanded ? 20 : maxLines,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Appcolors.textDark,
+                      fontFamily: 'Montserrat',
                     ),
                   ),
                   if (hasMore)
@@ -249,7 +253,8 @@ class StepReview extends StatelessWidget {
                         style: TextStyle(
                           color: Appcolors.primary,
                           fontWeight: FontWeight.w600,
-                          fontSize: 13,
+                          fontSize: 12,
+                          fontFamily: 'Montserrat',
                         ),
                       ),
                     ),

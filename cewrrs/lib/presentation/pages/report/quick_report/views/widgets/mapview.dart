@@ -50,12 +50,12 @@ class MapView extends StatelessWidget {
               onTap: controllers.updateMarker,
               compassEnabled: false,
               zoomControlsEnabled: false,
-              markers: {
+              markers: controllers.selectedLocation.value != null ? {
                 Marker(
                   markerId: MarkerId("current"),
-                  position: controllers.selectedLocation.value,
+                  position: controllers.selectedLocation.value!,
                 ),
-              },
+              } : {},
             );
           }),
           locationButton(context),
